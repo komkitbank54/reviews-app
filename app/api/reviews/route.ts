@@ -4,21 +4,60 @@ import { z } from "zod";
 import Review from "../../lib/models/Review";
 import { dbConnect } from "../../lib/db";
 
-// ... ReviewInput เดิมคงไว้
+// บังคับให้รันบน Node.js (ป้องกันปัญหา Buffer/URL บางเคสถ้าไป Edge)
+export const runtime = "nodejs";
 
-// ...imports และของเดิมคงไว้
-
+// ---------- Utils ----------
 function isTikTokHost(u: URL) {
   const h = u.hostname.toLowerCase();
   return h === "tiktok.com" || h.endsWith(".tiktok.com");
 }
 function normalizeTikTokUrl(raw: string) {
   const u = new URL(raw);
-  ["is_from_webapp","sender_device","sender_web_id","utm_source","utm_medium","utm_campaign"]
-    .forEach((k) => u.searchParams.delete(k));
+  [
+    "is_from_webapp",
+    "sender_device",
+    "sender_web_id",
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+  ].forEach((k) => u.searchParams.delete(k));
   return u.toString();
 }
 
+// ---------- Zod Schema ----------
+const dateLike = z.preprocess((v) => {
+  // รับทั้ง string/number/Date แล้วพยายามแปลงเป็น Date ที่ valid
+  if (v instanceof Date) return v;
+  if (typeof v === "string" || typeof v === "number") {
+    const d = new Date(v);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return v;
+}, z.date({ required_error: "publishedAt is required" }));
+
+const ReviewInput = z.object({
+  title: z.string().min(1),
+  platform: z.enum(["tiktok", "youtube", "reels"]),
+  productImage: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  productGif: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  price: z.string().optional(),
+  // อนุญาตส่งเป็น string ที่แปลงได้
+  rating: z
+    .union([z.number(), z.string()])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? undefined : Number(v)))
+    .refine((v) => v === undefined || (!isNaN(v) && v >= 0 && v <= 5), "rating must be 0..5"),
+  tags: z.array(z.string()).default([]),
+  aliases: z.array(z.string()).default([]),
+  publishedAt: dateLike, // ใช้ตัวแปลงด้านบน
+  reviewUrl: z.string().url(),
+  affiliateUrl: z.string().optional().default(""),
+  pros: z.array(z.string()).default([]),
+  cons: z.array(z.string()).default([]),
+});
+
+// ---------- GET ----------
 export async function GET(req: Request) {
   await dbConnect();
   const { searchParams } = new URL(req.url);
@@ -31,13 +70,8 @@ export async function GET(req: Request) {
   if (rawTikTokUrl) {
     try {
       const u = new URL(rawTikTokUrl);
-      if (!isTikTokHost(u)) {
-        // ไม่ใช่โดเมน tiktok → ปล่อยไปค้นแบบปกติด้านล่าง
-        // (อย่าตัด return ที่นี่)
-      } else {
+      if (isTikTokHost(u)) {
         const tiktokUrl = normalizeTikTokUrl(u.toString());
-
-        // -------- ค้น DB แบบ AND เงื่อนไข --------
         const where: any = { reviewUrl: tiktokUrl };
         if (q) {
           where.$or = [
@@ -61,20 +95,20 @@ export async function GET(req: Request) {
           .select(projection);
 
         if (docs.length > 0) {
-          return NextResponse.json({ data: docs }, {
-            headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" },
-          });
+          return NextResponse.json(
+            { data: docs },
+            { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } }
+          );
         }
 
-        // ถ้าไม่มีผลใน DB:
-        // - กรณี q มีค่า → แปลว่าไม่มีอะไร match เงื่อนไขทั้งสอง → คืน [] (อย่าฉีด oEmbed)
         if (q || tags.length) {
-          return NextResponse.json({ data: [] }, {
-            headers: { "Cache-Control": "public, max-age=15" },
-          });
+          return NextResponse.json(
+            { data: [] },
+            { headers: { "Cache-Control": "public, max-age=15" } }
+          );
         }
 
-        // - กรณี q ว่าง → ค่อย fallback เป็น oEmbed ให้ดูตัวชั่วคราว
+        // fallback oEmbed (ไม่มีใน DB และไม่มี q/tags เพิ่ม)
         const oembedRes = await fetch(
           "https://www.tiktok.com/oembed?url=" + encodeURIComponent(tiktokUrl),
           { headers: { "User-Agent": "Mozilla/5.0" } }
@@ -97,21 +131,23 @@ export async function GET(req: Request) {
             pros: [] as string[],
             cons: [] as string[],
           };
-          return NextResponse.json({ data: [temp] }, {
-            headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" },
-          });
+          return NextResponse.json(
+            { data: [temp] },
+            { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } }
+          );
         }
 
-        return NextResponse.json({ data: [] }, {
-          headers: { "Cache-Control": "public, max-age=15" },
-        });
+        return NextResponse.json(
+          { data: [] },
+          { headers: { "Cache-Control": "public, max-age=15" } }
+        );
       }
     } catch {
-      // ถ้า URL พัง ให้ปล่อยไหลไปค้นแบบปกติด้านล่าง
+      // invalid URL → ตกไปค้นปกติด้านล่าง
     }
   }
 
-  // ---------- ค้นหาแบบปกติ (ไม่มี tiktokUrl) ----------
+  // ค้นหาปกติ
   const where: any = {};
   if (q) {
     where.$or = [
@@ -132,7 +168,57 @@ export async function GET(req: Request) {
       affiliateUrl: 1, pros: 1, cons: 1,
     });
 
-  return NextResponse.json({ data: docs }, {
-    headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" },
-  });
+  return NextResponse.json(
+    { data: docs },
+    { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } }
+  );
+}
+
+// ---------- POST (เพิ่มข้อมูล) ----------
+export async function POST(req: Request) {
+  if (!process.env.ADMIN_TOKEN) {
+    return new NextResponse("ADMIN_TOKEN not set", { status: 500 });
+  }
+  const auth = req.headers.get("authorization") || "";
+  if (auth !== `Bearer ${process.env.ADMIN_TOKEN}`) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  await dbConnect();
+
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return new NextResponse("Invalid JSON body", { status: 400 });
+  }
+
+  // normalize reviewUrl (โดยเฉพาะ TikTok)
+  if (typeof raw === "object" && raw && "reviewUrl" in (raw as any)) {
+    try {
+      const u = new URL((raw as any).reviewUrl);
+      if (isTikTokHost(u)) {
+        (raw as any).reviewUrl = normalizeTikTokUrl(u.toString());
+      }
+    } catch {
+      // ปล่อยให้ schema ตรวจจับ url พังเอง
+    }
+  }
+
+  const parsed = ReviewInput.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "ValidationError", issues: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const doc = await Review.create(parsed.data);
+    return NextResponse.json({ data: { id: doc._id } }, { status: 201 });
+  } catch (e: any) {
+    // กัน duplicate key หรือ validation ฝั่ง Mongo
+    const msg = e?.message || "DB error";
+    return NextResponse.json({ error: "DBError", message: msg }, { status: 500 });
+  }
 }

@@ -19,6 +19,9 @@ import {
     ThumbsUp,
     ThumbsDown,
     X,
+    Tiktok,
+    Youtube,
+    Instagram,
 } from "lucide-react";
 
 /* ----------------------------- Types & Const ----------------------------- */
@@ -98,7 +101,7 @@ function Button<E extends keyof JSX.IntrinsicElements = "button">({
     return (
         <Comp
             className={
-                "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium outline-none " +
+                "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-medium outline-none " +
                 "transition-all duration-200 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-emerald-500/40 " +
                 "bg-zinc-900/60 backdrop-blur-lg border border-white/10 " +
                 className
@@ -133,7 +136,7 @@ const Badge = ({
 }) => (
     <span
         className={
-            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-xs text-zinc-300 " +
+            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-[13px] text-zinc-300 " +
             "transition-all duration-300 " +
             className
         }
@@ -145,7 +148,7 @@ const Badge = ({
 const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
     const v = clamp5(value);
     return (
-        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-xs text-zinc-200">
+        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] text-zinc-200">
             <span className="font-semibold">{v.toFixed(1)}</span>
             <span className="opacity-60">/ 5</span>
             <Star
@@ -170,7 +173,7 @@ function TikTokBadge({ onClear }: { onClear: () => void }) {
             tabIndex={0}
             onKeyDown={onKey}
             className="relative isolate inline-flex items-center gap-1 pl-2 pr-1 py-1
-                 rounded-full text-[11px] font-semibold text-white outline-none
+                 rounded-full text-[12px] font-semibold text-white outline-none
                  ring-0 focus-visible:ring-2 focus-visible:ring-white/30"
             aria-label="TikTok link active (press Backspace/Delete to clear)"
         >
@@ -226,6 +229,25 @@ const merchantInfo = (url: string) => {
         className: "bg-emerald-600 text-white",
     } as const;
 };
+
+// Minimal line TikTok icon (stroke บาง ๆ ให้เข้าธีม)
+function TikTokIcon(props: React.SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="M14 4v8.5a4.5 4.5 0 1 1-3.9-4.45" />
+            <path d="M14 8.5c1.25 1.25 3 2.05 4.9 2.05" />
+        </svg>
+    );
+}
 
 /* --------------------------------- Page ---------------------------------- */
 export default function ReviewHub() {
@@ -376,11 +398,13 @@ export default function ReviewHub() {
 
     /* render */
     return (
-        <div className="min-h-dvh bg-transparent text-zinc-100">
+        <div className="min-h-dvh bg-transparent text-[15px] leading-[1.7] text-zinc-100">
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur">
+            <header className="sticky top-0 z-50 border-b border-white/10 bg-zinc-900/40 backdrop-blur-md">
                 <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 md:px-6">
-                    <span className="font-semibold">ikkist's items</span>
+                    <span className="font-semibold text-[16px] tracking-[0.005em] text-[var(--text-primary)]">
+                        ikkist&apos;s items
+                    </span>
 
                     {/* Desktop Search */}
                     <div className="relative ml-4 hidden min-w-0 flex-1 items-center md:flex">
@@ -391,14 +415,14 @@ export default function ReviewHub() {
                         <div
                             className="
               w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
-              px-3 py-1.5 pr-3 pl-9 flex items-center gap-2
+              px-3 py-2 pr-3 pl-9 flex items-center gap-2
               outline-none ring-0 transition-all duration-200 ease-out
               focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
             "
                         >
                             {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                             <input
-                                className="min-w-0 flex-1 bg-transparent text-sm text-zinc-100 placeholder-zinc-500 outline-none"
+                                className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
                                 placeholder="วาง TikTok แล้วพิมพ์ต่อ เช่น: tiktok> โคมไฟ minimal"
                                 value={stripToken(query)}
                                 onChange={(e) =>
@@ -423,7 +447,7 @@ export default function ReviewHub() {
                             <div className="absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-zinc-900/80 p-3 shadow-xl backdrop-blur">
                                 <div className="mb-2 flex items-center gap-2">
                                     <Search size={14} className="opacity-60" />
-                                    <span className="text-xs text-zinc-400">
+                                    <span className="text-[13px] text-zinc-400">
                                         เลือกแท็กได้หลายอัน
                                     </span>
                                 </div>
@@ -434,7 +458,7 @@ export default function ReviewHub() {
                                             <button
                                                 key={t}
                                                 onClick={() => toggleTag(t)}
-                                                className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition ${
+                                                className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] transition ${
                                                     active
                                                         ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/40"
                                                         : "border-white/10 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-900"
@@ -454,14 +478,11 @@ export default function ReviewHub() {
                                 <div className="mt-3 flex items-center justify-between gap-2">
                                     <button
                                         onClick={clearTags}
-                                        className="text-xs text-zinc-400 hover:text-zinc-200"
+                                        className="text-[13px] text-zinc-400 hover:text-zinc-200"
                                     >
                                         ล้างทั้งหมด
                                     </button>
-                                    <Button
-                                        className="h-10 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10"
-                                        onClick={() => setFilterOpen(false)}
-                                    >
+                                    <Button className="h-10 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10">
                                         เสร็จสิ้น
                                     </Button>
                                 </div>
@@ -479,15 +500,15 @@ export default function ReviewHub() {
                         />
                         <div
                             className="
-              w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
-              px-3 py-1.5 pr-3 pl-9 flex items-center gap-2
-              outline-none ring-0 transition-all duration-200 ease-out
-              focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
-            "
+                              w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
+                              px-3 py-2 pr-3 pl-9 flex items-center gap-2
+                              outline-none ring-0 transition-all duration-200 ease-out
+                              focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
+                            "
                         >
                             {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                             <input
-                                className="min-w-0 flex-1 bg-transparent text-sm text-zinc-100 placeholder-zinc-500 outline-none"
+                                className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
                                 placeholder={
                                     tiktokUrl
                                         ? "ใส่ชื่อ/ชนิดสินค้าเพื่อค้นหา"
@@ -571,13 +592,16 @@ export default function ReviewHub() {
                                         )}
 
                                         {/* overlays */}
-                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/80" />
-                                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-xs text-white/80">
-                                            <Badge className="!text-xs bg-black/50">
+                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/85" />
+                                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[13px] text-white/80">
+                                            <Badge className="!text-[13px] bg-black/50">
                                                 {item.platform}
                                             </Badge>
                                             <span>•</span>
-                                            <time dateTime={item.publishedAt}>
+                                            <time
+                                                className="text-[13px] text-[var(--text-tertiary)]"
+                                                dateTime={item.publishedAt}
+                                            >
                                                 {new Date(
                                                     item.publishedAt
                                                 ).toLocaleDateString("th-TH", {
@@ -591,7 +615,7 @@ export default function ReviewHub() {
 
                                         {/* bottom content */}
                                         <div className="absolute bottom-0 left-0 right-0 z-10 p-4 flex flex-col gap-2">
-                                            <h3 className="text-lg font-semibold text-white leading-snug line-clamp-2">
+                                            <h3 className="text-[18px] md:text-[20px] font-semibold text-[var(--text-primary)] leading-[1.45] line-clamp-2">
                                                 {item.title}
                                             </h3>
                                             <div className="flex items-center gap-2">
@@ -600,14 +624,14 @@ export default function ReviewHub() {
                                                     .map((t) => (
                                                         <span
                                                             key={t}
-                                                            className="text-xs text-zinc-300 bg-white/10 px-2 py-0.5 rounded-full"
+                                                            className="text-[13px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
                                                         >
                                                             #{t}
                                                         </span>
                                                     ))}
                                             </div>
                                             {item.productGif && (
-                                                <span className="md:hidden mt-1 text-[11px] text-white/80">
+                                                <span className="md:hidden mt-1 text-[12px] text-white/80">
                                                     {gif
                                                         ? "แตะเพื่อหยุด GIF"
                                                         : "แตะเพื่อเล่น GIF"}
@@ -621,7 +645,7 @@ export default function ReviewHub() {
                                         <div className="p-4 bg-zinc-900/80 backdrop-blur">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <div className="text-emerald-400 text-sm mb-1 flex items-center gap-1">
+                                                    <div className="text-[14px] mb-1 flex items-center gap-1 text-[var(--accent-teal)]">
                                                         <ThumbsUp
                                                             size={14}
                                                             className="opacity-90"
@@ -634,7 +658,7 @@ export default function ReviewHub() {
                                                             .map((p, i) => (
                                                                 <li
                                                                     key={i}
-                                                                    className="text-xs text-zinc-200"
+                                                                    className="text-[14px] leading-[1.65] text-[var(--text-secondary)]"
                                                                 >
                                                                     • {p}
                                                                 </li>
@@ -642,7 +666,7 @@ export default function ReviewHub() {
                                                     </ul>
                                                 </div>
                                                 <div>
-                                                    <div className="text-red-400 text-sm mb-1 flex items-center gap-1">
+                                                    <div className="text-[14px] mb-1 flex items-center gap-1 text-[var(--accent-pink)]">
                                                         <ThumbsDown
                                                             size={14}
                                                             className="opacity-90"
@@ -655,7 +679,7 @@ export default function ReviewHub() {
                                                             .map((c, i) => (
                                                                 <li
                                                                     key={i}
-                                                                    className="text-xs text-zinc-200"
+                                                                    className="text-[14px] leading-[1.65] text-[var(--text-secondary)]"
                                                                 >
                                                                     • {c}
                                                                 </li>
@@ -673,7 +697,7 @@ export default function ReviewHub() {
                                                     style={(m as any).style}
                                                     className={
                                                         (m as any).className +
-                                                        " h-12 px-4 rounded-xl text-base font-semibold flex-1"
+                                                        " h-12 px-4 rounded-xl text-[15px] font-semibold flex-1"
                                                     }
                                                 >
                                                     {m.label}{" "}
@@ -683,7 +707,7 @@ export default function ReviewHub() {
                                                     as="a"
                                                     href={item.reviewUrl}
                                                     target="_blank"
-                                                    className="h-10 px-4 bg-white/10 text-white hover:bg-white/20 flex-[0.5]"
+                                                    className="h-11 px-4 bg-white/10 text-white hover:bg-white/20 text-[15px] flex-[0.5]"
                                                 >
                                                     คลิป{" "}
                                                     <ExternalLink size={16} />
@@ -697,6 +721,166 @@ export default function ReviewHub() {
                     </div>
                 )}
             </main>
+            <footer className="mt-16 border-t border-[var(--border-subtle)]/80">
+                <div
+                    className="mx-auto max-w-6xl px-4 md:px-6 py-10 grid gap-10
+                  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                    {/* Brand + disclosure */}
+                    <section className="space-y-3">
+                        <h3 className="text-[20px] leading-tight text-[var(--text-primary)] font-semibold tracking-[0.005em]">
+                            Description
+                        </h3>
+
+                        <p className="text-[15px] leading-[1.9] text-[var(--text-tertiary)]">
+                            เว็บรวมไอเท็มจากคลิปที่ผมทำ เน้นสั่งจริง
+                            ใช้จริง พูดตรง ความเห็นทั้งหมดเป็นของผมเอง
+                            ลิงก์บางส่วนเป็น Affiliate ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาสินค้าไม่ได้เพิ่ม
+                            โปรดตรวจสอบสเปก/ราคา/สต็อกให้รอบคอบก่อนซื้อ
+                            เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ
+                            จากการใช้งานหรือการซื้อสินค้าตามรีวิว
+                            *แนะนำให้ถ่ายวิดีโอระหว่างแกะสินค้า เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมกันได้
+                        </p>
+
+                        {/* Disclaimer */}
+                        <div
+                            className="rounded-xl border border-[var(--border-subtle)]
+                      bg-[var(--surface-1)]/60 backdrop-blur px-3.5 py-3 flex justify-between"
+                        >
+                            <span
+                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
+                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
+                            >
+                                <span className="h-[6px] w-[6px] rounded-full bg-emerald-400/90" />
+                                สั่งเอง
+                            </span>
+                            <span
+                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
+                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
+                            >
+                                <span className="h-[6px] w-[6px] rounded-full bg-amber-400/90" />
+                                ใช้เอง
+                            </span>
+                            <span
+                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
+                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
+                            >
+                                <span className="h-[6px] w-[6px] rounded-full bg-red-400/90" />
+                                รีวิวเอง
+                            </span>
+                        </div>
+                    </section>
+
+                    {/* Socials */}
+                    <section>
+                        <h4 className="text-[14px] text-[var(--text-secondary)] font-semibold mb-3">
+                            ติดตามเรา
+                        </h4>
+
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                            <a
+                                href="https://www.tiktok.com/@your_handle"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
+                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
+                     px-3.5 py-2 transition"
+                            >
+                                <span
+                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
+                           group-hover:text-[var(--text-primary)]"
+                                >
+                                    TikTok
+                                </span>
+                                <ExternalLink
+                                    size={16}
+                                    className="opacity-50 group-hover:opacity-80"
+                                />
+                            </a>
+
+                            <a
+                                href="https://www.youtube.com/@your_handle"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
+                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
+                     px-3.5 py-2 transition"
+                            >
+                                <span
+                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
+                           group-hover:text-[var(--text-primary)]"
+                                >
+                                    YouTube
+                                </span>
+                                <ExternalLink
+                                    size={16}
+                                    className="opacity-50 group-hover:opacity-80"
+                                />
+                            </a>
+
+                            <a
+                                href="https://www.instagram.com/your_handle"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
+                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
+                     px-3.5 py-2 transition"
+                            >
+                                <span
+                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
+                           group-hover:text-[var(--text-primary)]"
+                                >
+                                    Instagram
+                                </span>
+                                <ExternalLink
+                                    size={16}
+                                    className="opacity-50 group-hover:opacity-80"
+                                />
+                            </a>
+                        </div>
+                    </section>
+
+                    {/* Contact */}
+                    <section>
+                        <h4 className="text-[14px] text-[var(--text-secondary)] font-semibold mb-3">
+                            ติดต่อ
+                        </h4>
+                        <ul className="space-y-2 text-[14px]">
+                            <li className="text-[var(--text-tertiary)]">
+                                อีเมล:{" "}
+                                <a
+                                    className="hover:text-[var(--accent-teal)]"
+                                    href="mailto:info@worachet.com"
+                                >
+                                    info@worachet.com
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                {/* Bottom bar */}
+                <div className="border-t border-[var(--border-subtle)]/80">
+                    <div
+                        className="mx-auto max-w-6xl px-4 md:px-6 py-4
+                    flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                        <span className="text-[13px] text-[var(--text-tertiary)]">
+                            © {new Date().getFullYear()} Bank Reviews — All
+                            rights reserved.
+                        </span>
+                        <div className="text-[13px] text-[var(--text-tertiary)]">
+                            Built by{" "}
+                            <a
+                                href="#"
+                                className="hover:text-[var(--accent-teal)]"
+                            >
+                                ikkist
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

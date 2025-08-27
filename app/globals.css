@@ -1,46 +1,181 @@
 @import "tailwindcss";
 
-/* Light theme */
+/* =========================
+   Fonts (Regular + Bold)
+   ========================= */
+@font-face {
+  font-family: "EkkamaiNew";
+  src: url("/fonts/EkkamaiNew-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EkkamaiNew";
+  src: url("/fonts/EkkamaiNew-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================
+   Theme tokens
+   ========================= */
 :root {
+  /* Text palette */
+  --text-primary: #EDEDED;    /* หัวข้อ/ตัวหลัก */
+  --text-secondary: #D4D4D8;  /* body text */
+  --text-tertiary: #A1A1AA;   /* meta/วันที่/ป้าย */
+  --text-muted: #8A8A8A;      /* placeholder/disabled */
+
+  /* Accents */
+  --accent-teal: #25F4EE;
+  --accent-pink: #FE2C55;
+  --accent-amber: #FACC15;
+
+  /* Surfaces & borders */
+  --surface-1: rgba(24,24,27,.60);
+  --surface-2: rgba(24,24,27,.80);
+  --border-subtle: rgba(255,255,255,.08);
+
+  /* Backgrounds (fallback values; เราเซ็ตจริงใน body ด้านล่าง) */
   --foreground: #171717;
-  /* gradient สว่าง นัว ๆ */
   --background: linear-gradient(135deg, #f8f9fb 0%, #f1f3f6 50%, #e9ecf1 100%);
 }
 
-/* Dark theme: รองรับทั้ง prefers-color-scheme และคลาส .dark */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #ededed;
-    --background:
-      radial-gradient(60rem 30rem at 20% 30%, rgba(37,244,238,0.10), transparent 60%),
-      radial-gradient(50rem 25rem at 80% 20%, rgba(254,44,85,0.10), transparent 60%),
-      linear-gradient(135deg, #0e0f12 0%, #0a0a0a 100%);
-  }
-}
-:root.dark, .dark :root, html.dark {
+html.dark {
   --foreground: #ededed;
   --background:
     radial-gradient(60rem 30rem at 20% 30%, rgba(37,244,238,0.10), transparent 60%),
     radial-gradient(50rem 25rem at 80% 20%, rgba(254,44,85,0.10), transparent 60%),
-    linear-gradient(135deg, #0e0f12 0%, #0a0a0a 100%);
+    linear-gradient(135deg, #0f1115 0%, #0a0a0a 100%);
 }
 
+/* Tailwind theme export (optional) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* =========================
+   Base readability tweaks
+   ========================= */
+html { 
+  /* ฟอนต์ไทยอ่านง่ายขึ้นด้วย base 15px */
+  font-size: 15px;
+  min-height: 100%;
+}
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "EkkamaiNew", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* พื้นหลังธีมมืด modern */
+  background:
+    radial-gradient(circle at top left, rgba(37,244,238,0.08), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(254,44,85,0.08), transparent 60%),
+    linear-gradient(135deg, #0d0d0f 0%, #3a3a3a 50%, #0a0a0a 100%);
+  color: var(--text-secondary);
   min-height: 100vh;
-  background-attachment: fixed;   /* ไม่ไหลตามสกรอลล์ */
-  background-size: cover;         /* ครอบจอ */
+  background-attachment: fixed;
+  background-size: cover;
+
+  /* อ่านง่ายขึ้น */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.005em;  /* คลายความชิด */
+  line-height: 1.7;         /* โปร่งกำลังดี */
+  font-kerning: normal;
+  font-synthesis-weight: none; /* กัน bold ปลอม */
 }
 
-/* Noise เบา ๆ ให้มี texture */
+/* Noise texture เบามาก */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   opacity: .10;
-  z-index: -1;
+  z-index: 0;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGZpbHRlciBpZD0ibm9pc2UiPjxmZUdhdXNzaWFuTm9pc2Ugc3RkRGV2aWF0aW9uPSIxIiBzdGREZXZpYXRpb25ZPSIxIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWx0ZXI9InVybCgjbm9pc2UpIi8+PC9zdmc+");
+}
+
+/* Animated gradient helper (ถ้าต้องการขยับ) */
+@keyframes gradient-x {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+  animation: gradient-x 12s ease infinite;
+  background-size: 200% 200%;
+}
+
+/* =========================
+   Typography scale
+   ========================= */
+
+/* หัวข้อ: ใหญ่ขึ้นนิด + โปร่ง + tracking แน่นขึ้น */
+:where(h1,h2,h3,h4,h5,h6) {
+  color: var(--text-primary);
+  letter-spacing: 0.0025em;
+  line-height: 1.45;
+  font-weight: 700; /* ใช้ไฟล์ Bold จริง */
+}
+h1 { font-size: clamp(24px, 3vw, 28px); }
+h2 { font-size: clamp(20px, 2.4vw, 24px); }
+h3 { font-size: clamp(18px, 2vw, 20px); }
+
+/* เนื้อหา/พารากราฟ */
+p { margin: 0 0 .8em; color: var(--text-secondary); }
+
+/* ข้อความเล็ก (meta/date/tag) */
+small, .meta, .tag, time {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  letter-spacing: 0.01em;
+}
+
+/* ลิงก์ */
+a {
+  color: var(--text-primary);
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--accent-teal); }
+
+/* Placeholder */
+::placeholder { color: var(--text-muted); }
+
+/* Selection highlight */
+::selection {
+  background: color-mix(in oklab, var(--accent-teal) 30%, transparent);
+  color: var(--text-primary);
+}
+
+/* =========================
+   Form controls (อ่านง่าย, แตะง่าย)
+   ========================= */
+input, textarea, select, button {
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: .005em;
+}
+input, textarea, select {
+  color: var(--text-primary);
+}
+button {
+  color: var(--text-primary);
+}
+
+/* =========================
+   Header/Footer helpers (optional)
+   ========================= */
+.header-blur {
+  background: rgba(24,24,27,.45);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.footer-border {
+  border-top: 1px solid var(--border-subtle);
 }
