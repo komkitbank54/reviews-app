@@ -19,9 +19,8 @@ import {
     ThumbsUp,
     ThumbsDown,
     X,
-    Tiktok,
-    Youtube,
-    Instagram,
+    LayoutGrid,
+    Rows,
 } from "lucide-react";
 
 /* ----------------------------- Types & Const ----------------------------- */
@@ -43,6 +42,8 @@ type ReviewItem = {
     pros?: string[];
     cons?: string[];
 };
+
+type CardMode = "full" | "compact";
 
 const TIKTOK_TOKEN = "tiktok>";
 const TIKTOK_URL_RE =
@@ -92,6 +93,7 @@ function useDebouncedValue<T>(value: T, delay = 250) {
 type PolymorphicProps<E extends keyof JSX.IntrinsicElements> =
     JSX.IntrinsicElements[E] & { as?: E; className?: string };
 
+// ★ ขยายฟอนต์ปุ่มทุกที่แบบรวมศูนย์: md ขึ้นเป็น 17px
 function Button<E extends keyof JSX.IntrinsicElements = "button">({
     as,
     className = "",
@@ -101,7 +103,7 @@ function Button<E extends keyof JSX.IntrinsicElements = "button">({
     return (
         <Comp
             className={
-                "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-medium outline-none " +
+                "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[15px] md:text-[17px] font-medium outline-none " + // ★
                 "transition-all duration-200 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-emerald-500/40 " +
                 "bg-zinc-900/60 backdrop-blur-lg border border-white/10 " +
                 className
@@ -127,6 +129,7 @@ const Card = memo(function Card({
     );
 });
 
+// ★ ขยายฟอนต์ badge บน desktop
 const Badge = ({
     className = "",
     children,
@@ -136,7 +139,7 @@ const Badge = ({
 }) => (
     <span
         className={
-            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-[13px] text-zinc-300 " +
+            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-[13px] md:text-[14px] text-zinc-300 " + // ★
             "transition-all duration-300 " +
             className
         }
@@ -148,7 +151,8 @@ const Badge = ({
 const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
     const v = clamp5(value);
     return (
-        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] text-zinc-200">
+        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200">
+            {/* ★ md:text-[14px] */}
             <span className="font-semibold">{v.toFixed(1)}</span>
             <span className="opacity-60">/ 5</span>
             <Star
@@ -173,22 +177,19 @@ function TikTokBadge({ onClear }: { onClear: () => void }) {
             tabIndex={0}
             onKeyDown={onKey}
             className="relative isolate inline-flex items-center gap-1 pl-2 pr-1 py-1
-                 rounded-full text-[12px] font-semibold text-white outline-none
+                 rounded-full text-[12px] md:text-[13px] font-semibold text-white outline-none
                  ring-0 focus-visible:ring-2 focus-visible:ring-white/30"
             aria-label="TikTok link active (press Backspace/Delete to clear)"
         >
-            {/* glow layer */}
             <span
                 aria-hidden
                 className="absolute -inset-[2px] -z-10 rounded-full blur-[8px] opacity-70
                    bg-[conic-gradient(at_30%_30%,#25F4EE_0deg,#000_120deg,#FE2C55_240deg,#25F4EE_360deg)]"
             />
-            {/* gradient core */}
             <span
                 aria-hidden
                 className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-[#111] via-[#1b1b1b] to-[#111]"
             />
-            {/* border shimmer */}
             <span
                 aria-hidden
                 className="absolute inset-0 -z-10 rounded-full p-px
@@ -212,42 +213,46 @@ function TikTokBadge({ onClear }: { onClear: () => void }) {
 /* ----------------------------- Helper (UI) ------------------------------- */
 const merchantInfo = (url: string) => {
     const u = (url || "").toLowerCase();
+
     if (u.includes("shopee"))
         return {
             label: "Shopee",
             className:
-                "bg-[linear-gradient(135deg,#FF6A3D_0%,#EF4D2D_48%,#E63D17_100%)] text-white",
+                "text-white bg-[linear-gradient(135deg,#FF6A3D_0%,#EF4D2D_50%,#E63D17_100%)] shadow-[0_6px_20px_rgba(239,77,45,0.35)]",
         } as const;
+
+    // ★ เพิ่ม Lazada
+    if (u.includes("lazada") || u.includes("lzd.co"))
+        return {
+            label: "Lazada",
+            className:
+                "text-white bg-[linear-gradient(135deg,#1A9CF3_0%,#FF5A00_100%)] shadow-[0_6px_20px_rgba(26,156,243,0.35)]",
+        } as const;
+
     if (u.includes("ikea"))
         return {
             label: "IKEA",
-            className: "!bg-[#0058A3] text-white",
-            style: { backgroundColor: "#0058A3" } as React.CSSProperties,
+            className:
+                "text-white bg-[linear-gradient(135deg,#1877C9_0%,#0D5FAA_100%)] shadow-[0_6px_20px_rgba(24,119,201,0.35)]",
         } as const;
+
+    if (
+        u.includes("tiktok") ||
+        u.includes("shop.tiktok") ||
+        u.includes("ttshop")
+    )
+        return {
+            label: "TikTok",
+            className:
+                "text-white bg-[linear-gradient(135deg,#FE2C55_0%,#25F4EE_100%)] shadow-[0_6px_20px_rgba(254,44,85,0.35)]",
+        } as const;
+
     return {
         label: "ไปที่ร้านค้า",
-        className: "bg-emerald-600 text-white",
+        className:
+            "text-white bg-[linear-gradient(135deg,#10B981_0%,#059669_100%)] shadow-[0_6px_20px_rgba(16,185,129,0.35)]",
     } as const;
 };
-
-// Minimal line TikTok icon (stroke บาง ๆ ให้เข้าธีม)
-function TikTokIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            {...props}
-        >
-            <path d="M14 4v8.5a4.5 4.5 0 1 1-3.9-4.45" />
-            <path d="M14 8.5c1.25 1.25 3 2.05 4.9 2.05" />
-        </svg>
-    );
-}
 
 /* --------------------------------- Page ---------------------------------- */
 export default function ReviewHub() {
@@ -257,12 +262,13 @@ export default function ReviewHub() {
     const [filterOpen, setFilterOpen] = useState(false);
     const [canHover, setCanHover] = useState(false);
     const [tiktokUrl, setTikTokUrl] = useState<string | null>(null);
+    const [cardMode, setCardMode] = useState<CardMode>("full");
 
     const [items, setItems] = useState<ReviewItem[]>([]);
     const [loading, setLoading] = useState(true);
     const debouncedQuery = useDebouncedValue(query, 300);
 
-    // GIF states by id; timers map to avoid re-creating timeouts loop
+    // GIF states by id
     const [gifOn, setGifOn] = useState<Record<string, boolean>>({});
     const gifTimersRef = useRef<Record<string, number>>({});
 
@@ -276,7 +282,16 @@ export default function ReviewHub() {
         return () => mmHover.removeEventListener?.("change", onChange);
     }, []);
 
-    // data fetch with proper cancellation (reuse controller via ref to cancel fast)
+    // remember card mode
+    useEffect(() => {
+        const saved = localStorage.getItem("cardMode") as CardMode | null;
+        if (saved === "compact" || saved === "full") setCardMode(saved);
+    }, []);
+    useEffect(() => {
+        localStorage.setItem("cardMode", cardMode);
+    }, [cardMode]);
+
+    // data fetch
     useEffect(() => {
         const controller = new AbortController();
         (async () => {
@@ -379,13 +394,11 @@ export default function ReviewHub() {
     const toggleGif = useCallback((id: string, next?: boolean) => {
         setGifOn((prev) => {
             const on = next ?? !prev[id];
-            // clear old timer
             const old = gifTimersRef.current[id];
             if (old) {
                 clearTimeout(old);
                 delete gifTimersRef.current[id];
             }
-            // set new timer if turning on
             if (on) {
                 gifTimersRef.current[id] = window.setTimeout(() => {
                     setGifOn((m) => ({ ...m, [id]: false }));
@@ -396,13 +409,22 @@ export default function ReviewHub() {
         });
     }, []);
 
+    /* layout helpers */
+    const gridClass =
+        cardMode === "compact"
+            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4"
+            : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
+
     /* render */
     return (
-        <div className="min-h-dvh bg-transparent text-[15px] leading-[1.7] text-zinc-100">
+        // ★ ขยาย base font สำหรับ desktop ทั้งหน้า: md:text-[16.5px]
+        <div className="min-h-dvh bg-transparent text-[15px] md:text-[16.5px] leading-[1.75] text-zinc-100">
             {/* Header */}
             <header className="sticky top-0 z-50 border-b border-white/10 bg-zinc-900/40 backdrop-blur-md">
                 <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 md:px-6">
-                    <span className="font-semibold text-[16px] tracking-[0.005em] text-[var(--text-primary)]">
+                    <span className="font-semibold text-[16px] md:text-[18px] tracking-[0.005em] text-[var(--text-primary)]">
+                        {" "}
+                        {/* ★ */}
                         ikkist&apos;s items
                     </span>
 
@@ -414,16 +436,16 @@ export default function ReviewHub() {
                         />
                         <div
                             className="
-              w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
-              px-3 py-2 pr-3 pl-9 flex items-center gap-2
-              outline-none ring-0 transition-all duration-200 ease-out
-              focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
-            "
+                w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
+                px-3 py-2 pr-3 pl-9 flex items-center gap-2
+                outline-none ring-0 transition-all duration-200 ease-out
+                focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
+              "
                         >
                             {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                             <input
-                                className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
-                                placeholder="วาง TikTok แล้วพิมพ์ต่อ เช่น: tiktok> โคมไฟ minimal"
+                                className="min-w-0 flex-1 bg-transparent text-[15px] md:text-[16px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none" // ★
+                                placeholder="วางลิงก์ TikTok หรือชื่อไอเท็มที่ต้องการ (เช่น โคมไฟ minimal)"
                                 value={stripToken(query)}
                                 onChange={(e) =>
                                     handleSearchChange(e.target.value)
@@ -434,94 +456,168 @@ export default function ReviewHub() {
                         </div>
                     </div>
 
-                    {/* Filter */}
-                    <div className="ml-auto relative z-50">
-                        <Button
-                            className="rounded-xl border border-white/10 bg-zinc-900/60 text-zinc-200"
-                            onClick={() => setFilterOpen((v) => !v)}
-                        >
-                            <Filter size={16} /> ตัวกรอง{" "}
-                            <ChevronDown size={16} />
-                        </Button>
-                        {filterOpen && (
-                            <div className="absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-zinc-900/80 p-3 shadow-xl backdrop-blur">
-                                <div className="mb-2 flex items-center gap-2">
-                                    <Search size={14} className="opacity-60" />
-                                    <span className="text-[13px] text-zinc-400">
-                                        เลือกแท็กได้หลายอัน
-                                    </span>
+                    {/* Display mode toggle */}
+                    <div className="ml-auto flex items-center gap-2">
+                        <div className="hidden md:flex items-center gap-2">
+                            {cardMode !== "full" && (
+                                <Button
+                                    className={
+                                        "h-11 px-4 " + // ★ h-11 ให้สูงขึ้นเล็กน้อย
+                                        (cardMode === "full"
+                                            ? "bg-emerald-600/90 text-white"
+                                            : "bg-zinc-900/60 text-zinc-200")
+                                    }
+                                    aria-pressed={cardMode === "full"}
+                                    onClick={() => setCardMode("full")}
+                                    title="โหมดเต็ม"
+                                >
+                                    <Rows size={18} />
+                                    <span className="hidden sm:inline"></span>
+                                </Button>
+                            )}
+                            {cardMode !== "compact" && (
+                                <Button
+                                    className={
+                                        "h-11 px-4 " +
+                                        (cardMode === "compact"
+                                            ? "bg-emerald-600/90 text-white"
+                                            : "bg-zinc-900/60 text-zinc-200")
+                                    }
+                                    aria-pressed={cardMode === "compact"}
+                                    onClick={() => setCardMode("compact")}
+                                    title="โหมดกะทัดรัด"
+                                >
+                                    <LayoutGrid size={18} />
+                                    <span className="hidden sm:inline"></span>
+                                </Button>
+                            )}
+                        </div>
+
+                        {/* Filter */}
+                        <div className="relative">
+                            <Button
+                                className="h-11 rounded-xl border border-white/10 bg-zinc-900/60 text-zinc-200"
+                                onClick={() => setFilterOpen((v) => !v)}
+                            >
+                                <Filter size={18} />
+                                <span className="hidden sm:inline">
+                                    ตัวกรอง
+                                </span>
+                                <ChevronDown size={18} />
+                            </Button>
+                            {filterOpen && (
+                                <div className="absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-zinc-900/80 p-3 shadow-xl backdrop-blur">
+                                    <div className="mb-2 flex items-center gap-2">
+                                        <Search
+                                            size={14}
+                                            className="opacity-60"
+                                        />
+                                        <span className="text-[13px] md:text-[14px] text-zinc-400">
+                                            เลือกแท็กได้หลายอัน
+                                        </span>
+                                    </div>
+                                    <div className="flex max-h-56 flex-wrap gap-2 overflow-auto rounded-xl border border-white/10 bg-zinc-900/40 p-2">
+                                        {allTags.map((t) => {
+                                            const active =
+                                                activeTags.includes(t);
+                                            return (
+                                                <button
+                                                    key={t}
+                                                    onClick={() => toggleTag(t)}
+                                                    className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] md:text-[14px] transition ${
+                                                        active
+                                                            ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/40"
+                                                            : "border-white/10 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-900"
+                                                    }`}
+                                                    aria-pressed={active}
+                                                >
+                                                    {active ? (
+                                                        <Check size={14} />
+                                                    ) : (
+                                                        <Tag size={12} />
+                                                    )}
+                                                    {t}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="mt-3 flex items-center justify-between gap-2">
+                                        <button
+                                            onClick={clearTags}
+                                            className="text-[13px] md:text-[14px] text-zinc-400 hover:text-zinc-200"
+                                        >
+                                            ล้างทั้งหมด
+                                        </button>
+                                        <Button
+                                            className="h-11 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10"
+                                            onClick={() => setFilterOpen(false)}
+                                        >
+                                            เสร็จสิ้น
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="flex max-h-56 flex-wrap gap-2 overflow-auto rounded-xl border border-white/10 bg-zinc-900/40 p-2">
-                                    {allTags.map((t) => {
-                                        const active = activeTags.includes(t);
-                                        return (
-                                            <button
-                                                key={t}
-                                                onClick={() => toggleTag(t)}
-                                                className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] transition ${
-                                                    active
-                                                        ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/40"
-                                                        : "border-white/10 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-900"
-                                                }`}
-                                                aria-pressed={active}
-                                            >
-                                                {active ? (
-                                                    <Check size={14} />
-                                                ) : (
-                                                    <Tag size={12} />
-                                                )}
-                                                {t}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                <div className="mt-3 flex items-center justify-between gap-2">
-                                    <button
-                                        onClick={clearTags}
-                                        className="text-[13px] text-zinc-400 hover:text-zinc-200"
-                                    >
-                                        ล้างทั้งหมด
-                                    </button>
-                                    <Button className="h-10 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10">
-                                        เสร็จสิ้น
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Mobile search */}
                 <div className="block border-t border-white/10 px-4 pb-3 pt-2 md:hidden">
-                    <div className="relative">
-                        <Search
-                            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
-                            size={18}
-                        />
-                        <div
-                            className="
-                              w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
-                              px-3 py-2 pr-3 pl-9 flex items-center gap-2
-                              outline-none ring-0 transition-all duration-200 ease-out
-                              focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
-                            "
-                        >
-                            {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
-                            <input
-                                className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
-                                placeholder={
-                                    tiktokUrl
-                                        ? "ใส่ชื่อ/ชนิดสินค้าเพื่อค้นหา"
-                                        : "แปะลิงค์ tiktok หรือ ชื่อ/ชนิดสินค้าเพื่อค้นหา"
-                                }
-                                value={stripToken(query)}
-                                onChange={(e) =>
-                                    handleSearchChange(e.target.value)
-                                }
-                                onPaste={handleSearchPaste}
-                                onKeyDown={handleSearchKeyDown}
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <Search
+                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
+                                size={18}
                             />
+                            <div
+                                className="
+                  w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
+                  px-3 py-2 pr-3 pl-9 flex items-center gap-2
+                  outline-none ring-0 transition-all duration-200 ease-out
+                  focus-within:border-emerald-500/50 focus-within:shadow-[0_0_15px_rgba(16,185,129,0.25)]
+                "
+                            >
+                                {tiktokUrl && (
+                                    <TikTokBadge onClear={clearTikTok} />
+                                )}
+                                <input
+                                    className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
+                                    placeholder={
+                                        tiktokUrl
+                                            ? "ใส่ชื่อไอเท็มเพื่อค้นหา"
+                                            : "แปะลิงก์ tiktok หรือ ชื่อไอเท็มเพื่อค้นหา"
+                                    }
+                                    value={stripToken(query)}
+                                    onChange={(e) =>
+                                        handleSearchChange(e.target.value)
+                                    }
+                                    onPaste={handleSearchPaste}
+                                    onKeyDown={handleSearchKeyDown}
+                                />
+                            </div>
                         </div>
+
+                        {/* quick mode toggle (mobile) */}
+                        <button
+                            className={
+                                "h-10 w-10 shrink-0 inline-flex items-center justify-center rounded-xl border border-white/10 " +
+                                (cardMode === "compact"
+                                    ? "bg-zinc-900/60"
+                                    : "bg-zinc-900/60")
+                            }
+                            aria-label="Toggle compact mode"
+                            onClick={() =>
+                                setCardMode((m) =>
+                                    m === "full" ? "compact" : "full"
+                                )
+                            }
+                        >
+                            {cardMode === "compact" ? (
+                                <LayoutGrid size={18} />
+                            ) : (
+                                <Rows size={18} />
+                            )}
+                        </button>
                     </div>
                 </div>
             </header>
@@ -529,19 +625,167 @@ export default function ReviewHub() {
             {/* Grid */}
             <main className="mx-auto max-w-6xl px-4 py-6 md:px-6">
                 {loading ? (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {Array.from({ length: 6 }).map((_, i) => (
+                    <div className={gridClass}>
+                        {Array.from({
+                            length: cardMode === "compact" ? 12 : 6,
+                        }).map((_, i) => (
                             <div
                                 key={i}
-                                className="rounded-2xl border border-white/10 bg-zinc-900/40 h-64 animate-pulse"
+                                className="rounded-2xl border border-white/10 bg-zinc-900/40 h-48 md:h-60 animate-pulse"
                             />
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className={gridClass}>
                         {items.map((item) => {
                             const gif = !!gifOn[item._id];
                             const m = merchantInfo(item.affiliateUrl);
+
+                            // shared bits
+                            const d = new Date(item.publishedAt);
+                            const dateText = `${d
+                                .getDate()
+                                .toString()
+                                .padStart(2, "0")}/${(d.getMonth() + 1)
+                                .toString()
+                                .padStart(2, "0")}/${d
+                                .getFullYear()
+                                .toString()
+                                .slice(-2)}`;
+
+                            if (cardMode === "compact") {
+                                /* ------------------------ COMPACT CARD ------------------------ */
+                                return (
+                                    <Card
+                                        key={item._id}
+                                        className="overflow-hidden relative group"
+                                    >
+                                        <div
+                                            className="relative aspect-[4/5] md:aspect-[1/1] w-full"
+                                            onMouseEnter={() =>
+                                                item.productGif &&
+                                                canHover &&
+                                                toggleGif(item._id, true)
+                                            }
+                                            onMouseLeave={() =>
+                                                item.productGif &&
+                                                canHover &&
+                                                toggleGif(item._id, false)
+                                            }
+                                            onClick={() =>
+                                                item.productGif &&
+                                                toggleGif(item._id)
+                                            }
+                                            role="button"
+                                            aria-label="พรีวิว GIF"
+                                        >
+                                            <img
+                                                src={item.productImage}
+                                                alt={item.title}
+                                                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                                                    gif
+                                                        ? "opacity-0"
+                                                        : "opacity-100"
+                                                }`}
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                            {item.productGif && (
+                                                <img
+                                                    src={item.productGif}
+                                                    alt={`${item.title} gif`}
+                                                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                                                        gif
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                    }`}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            )}
+
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
+                                            <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85">
+                                                <Badge className="!text-[12px] md:!text-[13px] bg-black/50">
+                                                    {item.platform}
+                                                </Badge>
+                                                <span>•</span>
+                                                <time className="opacity-80">
+                                                    {dateText}
+                                                </time>
+                                            </div>
+                                            <ScoreBadge
+                                                value={item.rating || 0}
+                                            />
+
+                                            {/* bottom minimal */}
+                                            <div className="absolute bottom-0 left-0 right-0 z-10 p-3 flex flex-col gap-1.5">
+                                                <h3 className="text-[14px] md:text-[16px] font-semibold text-[var(--text-primary)] leading-[1.35] line-clamp-2">
+                                                    {" "}
+                                                    {/* ★ */}
+                                                    {item.title}
+                                                </h3>
+
+                                                <div className="flex items-center gap-2 text-[12px] md:text-[13px] text-[var(--text-tertiary)]">
+                                                    {item.price && (
+                                                        <span className="rounded-md bg-white/10 px-1.5 py-[2px]">
+                                                            {item.price}
+                                                        </span>
+                                                    )}
+                                                    {(item.tags || [])
+                                                        .slice(0, 1)
+                                                        .map((t) => (
+                                                            <span
+                                                                key={t}
+                                                                className="rounded-md bg-white/10 px-1.5 py-[2px]"
+                                                            >
+                                                                #{t}
+                                                            </span>
+                                                        ))}
+                                                </div>
+
+                                                {/* quick actions (compact) */}
+                                                <div className="mt-2 flex items-center gap-2 m-auto">
+                                                    {item.affiliateUrl && (
+                                                        <a
+                                                            href={
+                                                                item.affiliateUrl
+                                                            }
+                                                            target="_blank"
+                                                            rel="nofollow noopener noreferrer"
+                                                            className={
+                                                                (m as any)
+                                                                    .className +
+                                                                " inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-[12px] md:text-[13px]"
+                                                            } // ★
+                                                            title={m.label}
+                                                        >
+                                                            {m.label}{" "}
+                                                            <LinkIcon
+                                                                size={14}
+                                                                className="ml-1"
+                                                            />
+                                                        </a>
+                                                    )}
+                                                    <a
+                                                        href={item.reviewUrl}
+                                                        target="_blank"
+                                                        className="inline-flex h-8 items-center justify-center rounded-lg bg-white/12 hover:bg-white/20 px-2.5 text-[12px] md:text-[13px]"
+                                                    >
+                                                        คลิป{" "}
+                                                        <ExternalLink
+                                                            size={14}
+                                                            className="ml-1"
+                                                        />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                );
+                            }
+
+                            /* -------------------------- FULL CARD --------------------------- */
                             return (
                                 <Card
                                     key={item._id}
@@ -591,31 +835,22 @@ export default function ReviewHub() {
                                             />
                                         )}
 
-                                        {/* overlays */}
                                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/85" />
-                                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[13px] text-white/80">
-                                            <Badge className="!text-[13px] bg-black/50">
+                                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[13px] md:text-[14px] text-white/80">
+                                            <Badge className="!text-[13px] md:!text-[14px] bg-black/50">
                                                 {item.platform}
                                             </Badge>
                                             <span>•</span>
-                                            <time
-                                                className="text-[13px] text-[var(--text-tertiary)]"
-                                                dateTime={item.publishedAt}
-                                            >
-                                                {new Date(
-                                                    item.publishedAt
-                                                ).toLocaleDateString("th-TH", {
-                                                    day: "numeric",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                })}
+                                            <time className="text-[13px] md:text-[14px] opacity-80">
+                                                {dateText}
                                             </time>
                                         </div>
                                         <ScoreBadge value={item.rating || 0} />
 
-                                        {/* bottom content */}
                                         <div className="absolute bottom-0 left-0 right-0 z-10 p-4 flex flex-col gap-2">
-                                            <h3 className="text-[18px] md:text-[20px] font-semibold text-[var(--text-primary)] leading-[1.45] line-clamp-2">
+                                            <h3 className="text-[18px] md:text-[22px] font-semibold text-[var(--text-primary)] leading-[1.45] line-clamp-2">
+                                                {" "}
+                                                {/* ★ */}
                                                 {item.title}
                                             </h3>
                                             <div className="flex items-center gap-2">
@@ -624,19 +859,12 @@ export default function ReviewHub() {
                                                     .map((t) => (
                                                         <span
                                                             key={t}
-                                                            className="text-[13px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
+                                                            className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
                                                         >
                                                             #{t}
                                                         </span>
                                                     ))}
                                             </div>
-                                            {item.productGif && (
-                                                <span className="md:hidden mt-1 text-[12px] text-white/80">
-                                                    {gif
-                                                        ? "แตะเพื่อหยุด GIF"
-                                                        : "แตะเพื่อเล่น GIF"}
-                                                </span>
-                                            )}
                                         </div>
                                     </div>
 
@@ -645,7 +873,9 @@ export default function ReviewHub() {
                                         <div className="p-4 bg-zinc-900/80 backdrop-blur">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <div className="text-[14px] mb-1 flex items-center gap-1 text-[var(--accent-teal)]">
+                                                    <div className="text-[14px] md:text-[15px] mb-1 flex items-center gap-1 text-[var(--accent-teal)]">
+                                                        {" "}
+                                                        {/* ★ */}
                                                         <ThumbsUp
                                                             size={14}
                                                             className="opacity-90"
@@ -658,7 +888,7 @@ export default function ReviewHub() {
                                                             .map((p, i) => (
                                                                 <li
                                                                     key={i}
-                                                                    className="text-[14px] leading-[1.65] text-[var(--text-secondary)]"
+                                                                    className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]"
                                                                 >
                                                                     • {p}
                                                                 </li>
@@ -666,7 +896,7 @@ export default function ReviewHub() {
                                                     </ul>
                                                 </div>
                                                 <div>
-                                                    <div className="text-[14px] mb-1 flex items-center gap-1 text-[var(--accent-pink)]">
+                                                    <div className="text-[14px] md:text-[15px] mb-1 flex items-center gap-1 text-[var(--accent-pink)]">
                                                         <ThumbsDown
                                                             size={14}
                                                             className="opacity-90"
@@ -679,7 +909,7 @@ export default function ReviewHub() {
                                                             .map((c, i) => (
                                                                 <li
                                                                     key={i}
-                                                                    className="text-[14px] leading-[1.65] text-[var(--text-secondary)]"
+                                                                    className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]"
                                                                 >
                                                                     • {c}
                                                                 </li>
@@ -694,11 +924,10 @@ export default function ReviewHub() {
                                                     href={item.affiliateUrl}
                                                     target="_blank"
                                                     rel="nofollow noopener noreferrer"
-                                                    style={(m as any).style}
                                                     className={
                                                         (m as any).className +
-                                                        " h-12 px-4 rounded-xl text-[15px] font-semibold flex-1"
-                                                    }
+                                                        " h-12 px-4 rounded-xl text-[15px] md:text-[17px] font-semibold flex-1"
+                                                    } // ★
                                                 >
                                                     {m.label}{" "}
                                                     <LinkIcon size={18} />
@@ -707,7 +936,7 @@ export default function ReviewHub() {
                                                     as="a"
                                                     href={item.reviewUrl}
                                                     target="_blank"
-                                                    className="h-11 px-4 bg-white/10 text-white hover:bg-white/20 text-[15px] flex-[0.5]"
+                                                    className="h-11 px-4 bg-white/10 text-white hover:bg-white/20 text-[15px] md:text-[17px] flex-[0.5]" // ★
                                                 >
                                                     คลิป{" "}
                                                     <ExternalLink size={16} />
@@ -721,50 +950,49 @@ export default function ReviewHub() {
                     </div>
                 )}
             </main>
+
             <footer className="mt-16 border-t border-[var(--border-subtle)]/80">
-                <div
-                    className="mx-auto max-w-6xl px-4 md:px-6 py-10 grid gap-10
-                  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                >
+                <div className="mx-auto max-w-6xl px-4 md:px-6 py-10 grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {/* Brand + disclosure */}
                     <section className="space-y-3">
-                        <h3 className="text-[20px] leading-tight text-[var(--text-primary)] font-semibold tracking-[0.005em]">
+                        <h3 className="text-[20px] md:text-[22px] leading-tight text-[var(--text-primary)] font-semibold tracking-[0.005em]">
+                            {" "}
+                            {/* ★ */}
                             Description
                         </h3>
 
-                        <p className="text-[15px] leading-[1.9] text-[var(--text-tertiary)]">
-                            เว็บรวมไอเท็มจากคลิปที่ผมทำ เน้นสั่งจริง
-                            ใช้จริง พูดตรง ความเห็นทั้งหมดเป็นของผมเอง
-                            ลิงก์บางส่วนเป็น Affiliate ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาสินค้าไม่ได้เพิ่ม
-                            โปรดตรวจสอบสเปก/ราคา/สต็อกให้รอบคอบก่อนซื้อ
+                        <p className="text-[15px] md:text-[16.5px] leading-[1.9] text-[var(--text-tertiary)]">
+                            เว็บรวมไอเท็มจากคลิปที่ผมทำ เน้นสั่งจริง ใช้จริง
+                            พูดตรง ความเห็นทั้งหมดเป็นของผมเอง ลิงก์บางส่วนเป็น
+                            Affiliate
+                            ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาไอเท็มไม่ได้แพงขึ้น
+                            <span className="font-semibold text-amber-400 ml-1">
+                                อย่าลืม!
+                            </span>{" "}
+                            ตรวจสอบสเปก/ราคา/สต็อกให้รอบคอบก่อนซื้อ
                             เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ
-                            จากการใช้งานหรือการซื้อสินค้าตามรีวิว
-                            *แนะนำให้ถ่ายวิดีโอระหว่างแกะสินค้า เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมกันได้
+                            จากการใช้งานหรือการซื้อไอเท็มตามรีวิว
                         </p>
 
+                        <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3.5 py-2 text-[14px] md:text-[15px] text-amber-300 leading-relaxed">
+                            💡 <span className="font-semibold">คำแนะนำ:</span>
+                            ควรถ่ายวิดีโอระหว่างแกะไอเท็ม
+                            เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมง่ายขึ้น
+                        </div>
+
                         {/* Disclaimer */}
-                        <div
-                            className="rounded-xl border border-[var(--border-subtle)]
-                      bg-[var(--surface-1)]/60 backdrop-blur px-3.5 py-3 flex justify-between"
-                        >
-                            <span
-                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
-                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
-                            >
+                        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 backdrop-blur px-3.5 py-3 flex justify-between">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] md:text-[13.5px] text-[var(--text-secondary)]">
+                                {" "}
+                                {/* ★ */}
                                 <span className="h-[6px] w-[6px] rounded-full bg-emerald-400/90" />
                                 สั่งเอง
                             </span>
-                            <span
-                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
-                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
-                            >
+                            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] md:text-[13.5px] text-[var(--text-secondary)]">
                                 <span className="h-[6px] w-[6px] rounded-full bg-amber-400/90" />
                                 ใช้เอง
                             </span>
-                            <span
-                                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)]
-                         bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] text-[var(--text-secondary)]"
-                            >
+                            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] md:text-[13.5px] text-[var(--text-secondary)]">
                                 <span className="h-[6px] w-[6px] rounded-full bg-red-400/90" />
                                 รีวิวเอง
                             </span>
@@ -773,23 +1001,31 @@ export default function ReviewHub() {
 
                     {/* Socials */}
                     <section>
-                        <h4 className="text-[14px] text-[var(--text-secondary)] font-semibold mb-3">
-                            ติดตามเรา
+                        <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
+                            ติดตามผมได้ที่
                         </h4>
-
                         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
                             <a
-                                href="https://www.tiktok.com/@your_handle"
+                                href="https://www.instagram.com/ikk1st/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
-                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
-                     px-3.5 py-2 transition"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)] px-3.5 py-2 transition"
                             >
-                                <span
-                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
-                           group-hover:text-[var(--text-primary)]"
-                                >
+                                <span className="inline-flex items-center gap-2 text-[14px] md:text-[15px] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                                    Instagram
+                                </span>
+                                <ExternalLink
+                                    size={16}
+                                    className="opacity-50 group-hover:opacity-80"
+                                />
+                            </a>
+                            <a
+                                href="https://www.tiktok.com/@ikk1st"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)] px-3.5 py-2 transition"
+                            >
+                                <span className="inline-flex items-center gap-2 text-[14px] md:text-[15px] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
                                     TikTok
                                 </span>
                                 <ExternalLink
@@ -797,40 +1033,14 @@ export default function ReviewHub() {
                                     className="opacity-50 group-hover:opacity-80"
                                 />
                             </a>
-
                             <a
-                                href="https://www.youtube.com/@your_handle"
+                                href="https://www.youtube.com/@ikkist7277"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
-                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
-                     px-3.5 py-2 transition"
+                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)] px-3.5 py-2 transition"
                             >
-                                <span
-                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
-                           group-hover:text-[var(--text-primary)]"
-                                >
+                                <span className="inline-flex items-center gap-2 text-[14px] md:text-[15px] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
                                     YouTube
-                                </span>
-                                <ExternalLink
-                                    size={16}
-                                    className="opacity-50 group-hover:opacity-80"
-                                />
-                            </a>
-
-                            <a
-                                href="https://www.instagram.com/your_handle"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center justify-between rounded-lg border border-[var(--border-subtle)]
-                     bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]
-                     px-3.5 py-2 transition"
-                            >
-                                <span
-                                    className="inline-flex items-center gap-2 text-[14px] text-[var(--text-secondary)]
-                           group-hover:text-[var(--text-primary)]"
-                                >
-                                    Instagram
                                 </span>
                                 <ExternalLink
                                     size={16}
@@ -842,10 +1052,12 @@ export default function ReviewHub() {
 
                     {/* Contact */}
                     <section>
-                        <h4 className="text-[14px] text-[var(--text-secondary)] font-semibold mb-3">
+                        <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
                             ติดต่อ
                         </h4>
-                        <ul className="space-y-2 text-[14px]">
+                        <ul className="space-y-2 text-[14px] md:text-[15.5px]">
+                            {" "}
+                            {/* ★ */}
                             <li className="text-[var(--text-tertiary)]">
                                 อีเมล:{" "}
                                 <a
@@ -861,15 +1073,12 @@ export default function ReviewHub() {
 
                 {/* Bottom bar */}
                 <div className="border-t border-[var(--border-subtle)]/80">
-                    <div
-                        className="mx-auto max-w-6xl px-4 md:px-6 py-4
-                    flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                        <span className="text-[13px] text-[var(--text-tertiary)]">
+                    <div className="mx-auto max-w-6xl px-4 md:px-6 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <span className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
                             © {new Date().getFullYear()} Bank Reviews — All
                             rights reserved.
                         </span>
-                        <div className="text-[13px] text-[var(--text-tertiary)]">
+                        <div className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
                             Built by{" "}
                             <a
                                 href="#"
