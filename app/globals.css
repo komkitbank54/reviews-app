@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
+/* Light theme */
 :root {
-  --background: #ffffff;
   --foreground: #171717;
+  /* gradient สว่าง นัว ๆ */
+  --background: linear-gradient(135deg, #f8f9fb 0%, #f1f3f6 50%, #e9ecf1 100%);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark theme: รองรับทั้ง prefers-color-scheme และคลาส .dark */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
     --foreground: #ededed;
+    --background:
+      radial-gradient(60rem 30rem at 20% 30%, rgba(37,244,238,0.10), transparent 60%),
+      radial-gradient(50rem 25rem at 80% 20%, rgba(254,44,85,0.10), transparent 60%),
+      linear-gradient(135deg, #0e0f12 0%, #0a0a0a 100%);
   }
+}
+:root.dark, .dark :root, html.dark {
+  --foreground: #ededed;
+  --background:
+    radial-gradient(60rem 30rem at 20% 30%, rgba(37,244,238,0.10), transparent 60%),
+    radial-gradient(50rem 25rem at 80% 20%, rgba(254,44,85,0.10), transparent 60%),
+    linear-gradient(135deg, #0e0f12 0%, #0a0a0a 100%);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background-attachment: fixed;   /* ไม่ไหลตามสกรอลล์ */
+  background-size: cover;         /* ครอบจอ */
+}
+
+/* Noise เบา ๆ ให้มี texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .10;
+  z-index: -1;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGZpbHRlciBpZD0ibm9pc2UiPjxmZUdhdXNzaWFuTm9pc2Ugc3RkRGV2aWF0aW9uPSIxIiBzdGREZXZpYXRpb25ZPSIxIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWx0ZXI9InVybCgjbm9pc2UpIi8+PC9zdmc+");
 }
