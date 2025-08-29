@@ -962,16 +962,16 @@ export default function ReviewHub() {
                         </h3>
 
                         <p className="text-[15px] md:text-[16.5px] leading-[1.9] text-[var(--text-tertiary)]">
-                            เว็บรวมไอเท็มจากคลิปที่ผมทำ เน้นสั่งจริง ใช้จริง
-                            พูดตรง ความเห็นทั้งหมดเป็นของผมเอง ลิงก์บางส่วนเป็น
+                            เว็บรวมไอเท็มจากผมที่สั่งเอง ใช้เอง
+                            รีวิวเอง ความเห็นทั้งหมดเป็นของผมเอง ไอเท็มบางส่วนเป็น
                             Affiliate
                             ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาไอเท็มไม่ได้แพงขึ้น
                             <span className="font-semibold text-amber-400 ml-1">
                                 อย่าลืม!
                             </span>{" "}
-                            ตรวจสอบสเปก/ราคา/สต็อกให้รอบคอบก่อนซื้อ
+                            ตรวจสอบสเปก, ราคา, สต็อกให้รอบคอบก่อนซื้อ
                             เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ
-                            จากการใช้งานหรือการซื้อไอเท็มตามรีวิว
+                            หากไอเท็มไม่ตรงปก เพราะผมสั่งผมก็เจอเยอะ ;w;
                         </p>
 
                         <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3.5 py-2 text-[14px] md:text-[15px] text-amber-300 leading-relaxed">
@@ -1002,7 +1002,7 @@ export default function ReviewHub() {
                     {/* Socials */}
                     <section>
                         <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
-                            ติดตามผมได้ที่
+                            ติดตาม
                         </h4>
                         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
                             <a

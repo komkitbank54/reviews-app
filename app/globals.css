@@ -1,32 +1,14 @@
 @import "tailwindcss";
 
 /* =========================
-   Fonts (Regular + Bold)
-   ========================= */
-@font-face {
-  font-family: "EkkamaiNew";
-  src: url("/fonts/EkkamaiNew-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "EkkamaiNew";
-  src: url("/fonts/EkkamaiNew-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* =========================
    Theme tokens
    ========================= */
 :root {
   /* Text palette */
-  --text-primary: #EDEDED;    /* หัวข้อ/ตัวหลัก */
-  --text-secondary: #D4D4D8;  /* body text */
-  --text-tertiary: #A1A1AA;   /* meta/วันที่/ป้าย */
-  --text-muted: #8A8A8A;      /* placeholder/disabled */
+  --text-primary: #EDEDED;
+  --text-secondary: #D4D4D8;
+  --text-tertiary: #A1A1AA;
+  --text-muted: #8A8A8A;
 
   /* Accents */
   --accent-teal: #25F4EE;
@@ -38,7 +20,10 @@
   --surface-2: rgba(24,24,27,.80);
   --border-subtle: rgba(255,255,255,.08);
 
-  /* Backgrounds (fallback values; เราเซ็ตจริงใน body ด้านล่าง) */
+  /* Fonts (ถูกเติมจาก next/font ผ่าน --font-sans) */
+  --font-sans: "IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* Backgrounds (fallback values) */
   --foreground: #171717;
   --background: linear-gradient(135deg, #f8f9fb 0%, #f1f3f6 50%, #e9ecf1 100%);
 }
@@ -55,21 +40,23 @@ html.dark {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
 }
 
 /* =========================
    Base readability tweaks
    ========================= */
-html { 
-  /* ฟอนต์ไทยอ่านง่ายขึ้นด้วย base 15px */
+html {
+  /* base 15px (มือถือ) + ขยายบนเดสก์ท็อปให้ใหญ่ขึ้น */
   font-size: 15px;
   min-height: 100%;
 }
+@media (min-width: 1024px) {
+  html { font-size: 16.5px; } /* ↑ เดสก์ท็อปใหญ่ขึ้นทั้งหน้า */
+}
+
 body {
-  font-family: "EkkamaiNew", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  /* พื้นหลังธีมมืด modern */
+  font-family: var(--font-sans);
   background:
     radial-gradient(circle at top left, rgba(37,244,238,0.08), transparent 60%),
     radial-gradient(circle at bottom right, rgba(254,44,85,0.08), transparent 60%),
@@ -79,13 +66,12 @@ body {
   background-attachment: fixed;
   background-size: cover;
 
-  /* อ่านง่ายขึ้น */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  letter-spacing: 0.005em;  /* คลายความชิด */
-  line-height: 1.7;         /* โปร่งกำลังดี */
+  letter-spacing: 0.005em;
+  line-height: 1.7;
   font-kerning: normal;
-  font-synthesis-weight: none; /* กัน bold ปลอม */
+  font-synthesis-weight: none;
 }
 
 /* Noise texture เบามาก */
@@ -99,33 +85,19 @@ body::before {
   background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGZpbHRlciBpZD0ibm9pc2UiPjxmZUdhdXNzaWFuTm9pc2Ugc3RkRGV2aWF0aW9uPSIxIiBzdGREZXZpYXRpb25ZPSIxIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWx0ZXI9InVybCgjbm9pc2UpIi8+PC9zdmc+");
 }
 
-/* Animated gradient helper (ถ้าต้องการขยับ) */
-@keyframes gradient-x {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-gradient-x {
-  animation: gradient-x 12s ease infinite;
-  background-size: 200% 200%;
-}
-
 /* =========================
    Typography scale
    ========================= */
-
-/* หัวข้อ: ใหญ่ขึ้นนิด + โปร่ง + tracking แน่นขึ้น */
 :where(h1,h2,h3,h4,h5,h6) {
   color: var(--text-primary);
   letter-spacing: 0.0025em;
   line-height: 1.45;
-  font-weight: 700; /* ใช้ไฟล์ Bold จริง */
+  font-weight: 700;
 }
-h1 { font-size: clamp(24px, 3vw, 28px); }
-h2 { font-size: clamp(20px, 2.4vw, 24px); }
-h3 { font-size: clamp(18px, 2vw, 20px); }
+h1 { font-size: clamp(24px, 3vw, 30px); }
+h2 { font-size: clamp(20px, 2.4vw, 26px); }
+h3 { font-size: clamp(18px, 2vw, 22px); }
 
-/* เนื้อหา/พารากราฟ */
 p { margin: 0 0 .8em; color: var(--text-secondary); }
 
 /* ข้อความเล็ก (meta/date/tag) */
@@ -153,7 +125,7 @@ a:hover { color: var(--accent-teal); }
 }
 
 /* =========================
-   Form controls (อ่านง่าย, แตะง่าย)
+   Form controls
    ========================= */
 input, textarea, select, button {
   font-family: inherit;
@@ -161,11 +133,16 @@ input, textarea, select, button {
   line-height: 1.6;
   letter-spacing: .005em;
 }
-input, textarea, select {
-  color: var(--text-primary);
-}
-button {
-  color: var(--text-primary);
+input, textarea, select { color: var(--text-primary); }
+button { color: var(--text-primary); }
+
+/* =========================
+   Thai diacritics helper (optional)
+   ========================= */
+.thai-boost {
+  text-shadow:
+    0 .01em 0 currentColor,
+    0 -.01em 0 currentColor;
 }
 
 /* =========================
