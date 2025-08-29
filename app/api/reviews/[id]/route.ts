@@ -4,7 +4,13 @@ import Review from '@/app/lib/models/Review';
 import { dbConnect } from '@/app/lib/db';
 import { z } from 'zod';
 
-// ... (schema เดิมของคุณ)
+// Define the ReviewUpdate schema for validation
+const ReviewUpdate = z.object({
+  // Example fields, adjust according to your Review model
+  title: z.string().min(1).optional(),
+  content: z.string().min(1).optional(),
+  rating: z.number().min(1).max(5).optional(),
+});
 
 export const runtime = 'nodejs';
 
