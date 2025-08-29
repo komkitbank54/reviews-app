@@ -255,42 +255,44 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
-    let raw: unknown;
+  let raw: any;
+  try { raw = await req.json(); }
+  catch { return new NextResponse('Invalid JSON body', { status: 400 }); }
+
+  // ---- COERCE / AUTO-FIX INPUTS ----
+  const MEDIA = (process.env.MEDIA_BASE_URL || 'https://media.ikk.ist').replace(/\/+$/, '');
+  const absolutizeMedia = (v?: string) => !v ? v :
+    (/^https?:\/\//i.test(v) ? v : v.startsWith('/') ? `${MEDIA}${v}` : v);
+  const absolutizeHttp = (v?: string) => !v ? v :
+    (/^https?:\/\//i.test(v) ? v : `https://${v.replace(/^\/+/, '')}`);
+
+  if (raw && typeof raw === 'object') {
+    if ('productImage' in raw) raw.productImage = absolutizeMedia(raw.productImage);
+    if ('productGif'   in raw) raw.productGif   = absolutizeMedia(raw.productGif);
+    if ('reviewUrl'    in raw) raw.reviewUrl    = absolutizeHttp(raw.reviewUrl);
+    if (raw.rating === '') raw.rating = undefined;
+  }
+
+  // normalize TikTok (optional)
+  if (raw?.reviewUrl) {
     try {
-        raw = await req.json();
-    } catch {
-        return new NextResponse("Invalid JSON body", { status: 400 });
-    }
+      const u = new URL(raw.reviewUrl);
+      if (isTikTokHost(u)) raw.reviewUrl = normalizeTikTokUrl(u.toString());
+    } catch {}
+  }
 
-    // normalize reviewUrl (โดยเฉพาะ TikTok)
-    if (typeof raw === "object" && raw && "reviewUrl" in (raw as any)) {
-        try {
-            const u = new URL((raw as any).reviewUrl);
-            if (isTikTokHost(u)) {
-                (raw as any).reviewUrl = normalizeTikTokUrl(u.toString());
-            }
-        } catch {
-            // ปล่อยให้ schema ตรวจจับ url พังเอง
-        }
-    }
+  const parsed = ReviewInput.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'ValidationError', issues: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
 
-    const parsed = ReviewInput.safeParse(raw);
-    if (!parsed.success) {
-        return NextResponse.json(
-            { error: "ValidationError", issues: parsed.error.flatten() },
-            { status: 400 }
-        );
-    }
-
-    try {
-        const doc = await Review.create(parsed.data);
-        return NextResponse.json({ data: { id: doc._id } }, { status: 201 });
-    } catch (e: any) {
-        // กัน duplicate key หรือ validation ฝั่ง Mongo
-        const msg = e?.message || "DB error";
-        return NextResponse.json(
-            { error: "DBError", message: msg },
-            { status: 500 }
-        );
-    }
+  try {
+    const doc = await Review.create(parsed.data);
+    return NextResponse.json({ data: { id: doc._id } }, { status: 201 });
+  } catch (e: any) {
+    return NextResponse.json({ error: 'DBError', message: e?.message || 'DB error' }, { status: 500 });
+  }
 }
