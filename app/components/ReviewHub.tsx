@@ -442,7 +442,7 @@ export default function ReviewHub() {
                             {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                             <input
                                 className="min-w-0 flex-1 bg-transparent text-[15px] md:text-[16px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none" // ★
-                                placeholder="วางลิงก์ TikTok หรือชื่อไอเท็มที่ต้องการ (เช่น โคมไฟ minimal)"
+                                placeholder="วางลิงก์ TikTok หรือชื่อของที่ต้องการ (เช่น โคมไฟ minimal)"
                                 value={stripToken(query)}
                                 onChange={(e) =>
                                     handleSearchChange(e.target.value)
@@ -577,8 +577,8 @@ export default function ReviewHub() {
                                     className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
                                     placeholder={
                                         tiktokUrl
-                                            ? "ใส่ชื่อไอเท็มเพื่อค้นหา"
-                                            : "แปะลิงก์ tiktok หรือ ชื่อไอเท็มเพื่อค้นหา"
+                                            ? "ใส่ชื่อของเพื่อค้นหา"
+                                            : "แปะลิงก์ tiktok หรือ ชื่อของเพื่อค้นหา"
                                     }
                                     value={stripToken(query)}
                                     onChange={(e) =>
@@ -702,10 +702,6 @@ export default function ReviewHub() {
                                                 <Badge className="!text-[12px] md:!text-[13px] bg-black/50">
                                                     {item.platform}
                                                 </Badge>
-                                                <span>•</span>
-                                                <time className="opacity-80">
-                                                    {dateText}
-                                                </time>
                                             </div>
                                             <ScoreBadge
                                                 value={item.rating || 0}
@@ -720,21 +716,16 @@ export default function ReviewHub() {
                                                 </h3>
 
                                                 <div className="flex items-center gap-2 text-[12px] md:text-[13px] text-[var(--text-tertiary)]">
-                                                    {item.price && (
-                                                        <span className="rounded-md bg-white/10 px-1.5 py-[2px]">
-                                                            {item.price}
+                                                {(item.tags || [])
+                                                    .slice(0, 3)
+                                                    .map((t) => (
+                                                        <span
+                                                            key={t}
+                                                            className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
+                                                        >
+                                                            #{t}
                                                         </span>
-                                                    )}
-                                                    {(item.tags || [])
-                                                        .slice(0, 1)
-                                                        .map((t) => (
-                                                            <span
-                                                                key={t}
-                                                                className="rounded-md bg-white/10 px-1.5 py-[2px]"
-                                                            >
-                                                                #{t}
-                                                            </span>
-                                                        ))}
+                                                    ))}
                                                 </div>
 
                                                 {/* quick actions (compact) */}
@@ -955,21 +946,21 @@ export default function ReviewHub() {
                         </h3>
 
                         <p className="text-[15px] md:text-[16.5px] leading-[1.9] text-[var(--text-tertiary)]">
-                            เว็บรวมไอเท็มจากผมที่สั่งเอง ใช้เอง
-                            รีวิวเอง ความเห็นทั้งหมดเป็นของผมเอง ไอเท็มบางส่วนเป็น
+                            เว็บรวมของผมที่สั่งเอง ใช้เอง
+                            รีวิวเอง ความเห็นทั้งหมดมาจากผมเอง ของบางส่วนเป็น
                             Affiliate
-                            ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาไอเท็มไม่ได้แพงขึ้น
+                            ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาของจะไม่ได้แพงขึ้น และ
                             <span className="font-semibold text-amber-400 ml-1">
                                 อย่าลืม!
                             </span>{" "}
                             ตรวจสอบสเปก, ราคา, สต็อกให้รอบคอบก่อนซื้อ
                             เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ
-                            หากไอเท็มไม่ตรงปก เพราะผมสั่งผมก็เจอเยอะ ;w;
+                            หากของไม่ตรงปกเพราะผมสั่งผมก็เจอไม่ตรงเยอะ ;w;
                         </p>
 
                         <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3.5 py-2 text-[14px] md:text-[15px] text-amber-300 leading-relaxed">
                             💡 <span className="font-semibold">คำแนะนำ:</span>
-                            ควรถ่ายวิดีโอระหว่างแกะไอเท็ม
+                            ควรถ่ายวิดีโอระหว่างแกะของ
                             เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมง่ายขึ้น
                         </div>
 
@@ -1055,9 +1046,9 @@ export default function ReviewHub() {
                                 อีเมล:{" "}
                                 <a
                                     className="hover:text-[var(--accent-teal)]"
-                                    href="mailto:info@worachet.com"
+                                    href="mailto:bank16211@gmail.com"
                                 >
-                                    info@worachet.com
+                                    bank16211@gmail.com
                                 </a>
                             </li>
                         </ul>
@@ -1068,7 +1059,7 @@ export default function ReviewHub() {
                 <div className="border-t border-[var(--border-subtle)]/80">
                     <div className="mx-auto max-w-6xl px-4 md:px-6 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <span className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
-                            © {new Date().getFullYear()} Bank Reviews — All
+                            © {new Date().getFullYear()} ikkist's items — All
                             rights reserved.
                         </span>
                         <div className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
