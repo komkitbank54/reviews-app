@@ -456,38 +456,34 @@ export default function ReviewHub() {
                     {/* Display mode toggle */}
                     <div className="ml-auto flex items-center gap-2">
                         <div className="hidden md:flex items-center gap-2">
-                            {cardMode !== "full" && (
-                                <Button
-                                    className={
-                                        "h-11 px-4 " + // ★ h-11 ให้สูงขึ้นเล็กน้อย
-                                        (cardMode === "full"
-                                            ? "bg-emerald-600/90 text-white"
-                                            : "bg-zinc-900/60 text-zinc-200")
-                                    }
-                                    aria-pressed={cardMode === "full"}
-                                    onClick={() => setCardMode("full")}
-                                    title="โหมดเต็ม"
-                                >
-                                    <Rows size={18} />
-                                    <span className="hidden sm:inline"></span>
-                                </Button>
-                            )}
-                            {cardMode !== "compact" && (
-                                <Button
-                                    className={
-                                        "h-11 px-4 " +
-                                        (cardMode === "compact"
-                                            ? "bg-emerald-600/90 text-white"
-                                            : "bg-zinc-900/60 text-zinc-200")
-                                    }
-                                    aria-pressed={cardMode === "compact"}
-                                    onClick={() => setCardMode("compact")}
-                                    title="โหมดกะทัดรัด"
-                                >
-                                    <LayoutGrid size={18} />
-                                    <span className="hidden sm:inline"></span>
-                                </Button>
-                            )}
+                            <Button
+                                className={
+                                    "h-11 px-4 " +
+                                    (cardMode === "full"
+                                        ? "bg-emerald-600/90 text-white"
+                                        : "bg-zinc-900/60 text-zinc-200")
+                                }
+                                aria-pressed={cardMode === "full"}
+                                onClick={() => setCardMode("full")}
+                                title="โหมดเต็ม"
+                            >
+                                <Rows size={18} />
+                                <span className="hidden sm:inline"></span>
+                            </Button>
+                            <Button
+                                className={
+                                    "h-11 px-4 " +
+                                    (cardMode === "compact"
+                                        ? "bg-emerald-600/90 text-white"
+                                        : "bg-zinc-900/60 text-zinc-200")
+                                }
+                                aria-pressed={cardMode === "compact"}
+                                onClick={() => setCardMode("compact")}
+                                title="โหมดกะทัดรัด"
+                            >
+                                <LayoutGrid size={18} />
+                                <span className="hidden sm:inline"></span>
+                            </Button>
                         </div>
 
                         {/* Filter */}
