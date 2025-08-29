@@ -606,7 +606,6 @@ export default function ReviewHub() {
                                     transition={{ duration: 0.16 }}
                                     className="hidden sm:inline"
                                 >
-                                    {isFull ? "Compact" : "Full"}
                                 </motion.span>
                             </Button>
                         </div>
