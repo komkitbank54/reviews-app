@@ -27,14 +27,18 @@ function normalizeTikTokUrl(raw: string) {
 
 // ---------- Zod Schema ----------
 const dateLike = z.preprocess((v) => {
-  // รับทั้ง string/number/Date แล้วพยายามแปลงเป็น Date ที่ valid
+  // รับทั้ง Date / string / number แล้วแปลงเป็น Date
   if (v instanceof Date) return v;
   if (typeof v === "string" || typeof v === "number") {
     const d = new Date(v);
     if (!isNaN(d.getTime())) return d;
   }
-  return v;
-}, z.date({ required_error: "publishedAt is required" }));
+  return v; // ให้ z.date() จัดการ error ต่อไปถ้าไม่ใช่ date
+}, z.date()).refine(
+  (d) => d instanceof Date && !isNaN(d.getTime()),
+  { message: "publishedAt must be a valid date" }
+);
+
 
 const ReviewInput = z.object({
   title: z.string().min(1),
