@@ -22,8 +22,9 @@ import {
     LayoutGrid,
     Rows,
 } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion, LayoutGroup } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Variants, Transition } from "framer-motion";
+
 const layoutSpring = { type: "spring", stiffness: 480, damping: 34, mass: 0.6 };
 const easeOut: Transition["ease"] = [0.16, 1, 0.3, 1];
 
@@ -132,7 +133,6 @@ const Card = memo(function Card({
     );
 });
 
-// ★ ขยายฟอนต์ badge บน desktop
 const Badge = ({
     className = "",
     children,
@@ -142,7 +142,7 @@ const Badge = ({
 }) => (
     <span
         className={
-            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-[13px] md:text-[14px] text-zinc-300 " + // ★
+            "inline-flex items-center gap-1 rounded-full border border-white/10 bg-zinc-900/70 backdrop-blur px-3 py-1 text-[13px] md:text-[14px] text-zinc-300 " +
             "transition-all duration-300 " +
             className
         }
@@ -155,7 +155,6 @@ const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
     const v = clamp5(value);
     return (
         <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200">
-            {/* ★ md:text-[14px] */}
             <span className="font-semibold">{v.toFixed(1)}</span>
             <span className="opacity-60">/ 5</span>
             <Star
@@ -167,6 +166,44 @@ const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
         </span>
     );
 });
+
+/* ----------------------- Mobile GIF Hint (no icon) ----------------------- */
+/** ใช้เฉพาะมือถือ (md:hidden) — compact: มุมขวาบนเลื่อนลงนิดนึง, full: มุมขวาล่าง */
+function MobileGifHint({
+    playing,
+    onToggle,
+    placement = "br", // "tr" | "br"
+}: {
+    playing: boolean;
+    onToggle: () => void;
+    placement?: "tr" | "br";
+}) {
+    const pos =
+        placement === "tr"
+            ? "top-10 right-2" // compact (เลี่ยงชน ScoreBadge)
+            : "bottom-2 right-2"; // full
+
+    return (
+        <button
+            type="button"
+            onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+            }}
+            className={[
+                "absolute z-20",
+                pos,
+                "rounded-full border border-white/10 bg-black/40 backdrop-blur",
+                "px-2 py-[5px] text-[10.5px] leading-none",
+                "text-white/60 shadow-md active:scale-95 transition",
+                "md:hidden", // มือถือเท่านั้น
+            ].join(" ")}
+            aria-label={playing ? "หยุด GIF" : "แตะเพื่อดู GIF"}
+        >
+            {playing ? "แตะเพื่อหยุด" : "แตะเพื่อดู GIF"}
+        </button>
+    );
+}
 
 function TikTokBadge({ onClear }: { onClear: () => void }) {
     const onKey = (e: React.KeyboardEvent<HTMLSpanElement>) => {
@@ -224,7 +261,6 @@ const merchantInfo = (url: string) => {
                 "text-white bg-[linear-gradient(135deg,#FF6A3D_0%,#EF4D2D_50%,#E63D17_100%)] shadow-[0_6px_20px_rgba(239,77,45,0.35)]",
         } as const;
 
-    // ★ เพิ่ม Lazada
     if (u.includes("lazada") || u.includes("lzd.co"))
         return {
             label: "Lazada",
@@ -259,48 +295,58 @@ const merchantInfo = (url: string) => {
 
 /* --------------------------- Motion Variants ---------------------------- */
 const pageVar: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.28, ease: easeOut },
-  },
+    hidden: { opacity: 0, y: 8 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.28, ease: easeOut },
+    },
 };
 
 const sectionVar: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.22, ease: easeOut },
-  },
+    hidden: { opacity: 0, y: 10 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.22, ease: easeOut },
+    },
 };
 
 const gridVar = (delay = 0): Variants => ({
-  hidden: {},
-  show: {
-    transition: {
-      delay,
-      staggerChildren: 0.06,
-      when: "beforeChildren",
+    hidden: {},
+    show: {
+        transition: {
+            delay,
+            staggerChildren: 0.06,
+            when: "beforeChildren",
+        },
     },
-  },
 });
 
 const cardVar = (shift = 10): Variants => ({
-  hidden: { opacity: 0, y: shift, scale: 0.98 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.22, ease: easeOut },
-  },
+    hidden: { opacity: 0, y: shift, scale: 0.98 },
+    show: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { duration: 0.22, ease: easeOut },
+    },
 });
 
 const dropVar: Variants = {
-  hidden: { opacity: 0, y: -6, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.16, ease: easeOut } },
-  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.12, ease: easeOut } },
+    hidden: { opacity: 0, y: -6, scale: 0.98 },
+    show: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { duration: 0.16, ease: easeOut },
+    },
+    exit: {
+        opacity: 0,
+        y: -6,
+        scale: 0.98,
+        transition: { duration: 0.12, ease: easeOut },
+    },
 };
 
 /* --------------------------------- Page ---------------------------------- */
@@ -326,21 +372,32 @@ export default function ReviewHub() {
 
     /* effects */
     useEffect(() => {
-        document.documentElement.classList.add("dark");
-        const mmHover = window.matchMedia("(hover: hover) and (pointer: fine)");
-        const onChange = () => setCanHover(mmHover.matches);
-        onChange();
-        mmHover.addEventListener?.("change", onChange);
-        return () => mmHover.removeEventListener?.("change", onChange);
+        // ทำเฉพาะ client — หลีกเลี่ยง hydration mismatch
+        if (typeof document !== "undefined") {
+            document.documentElement.classList.add("dark");
+        }
+        if (typeof window !== "undefined") {
+            const mmHover = window.matchMedia(
+                "(hover: hover) and (pointer: fine)"
+            );
+            const onChange = () => setCanHover(mmHover.matches);
+            onChange();
+            mmHover.addEventListener?.("change", onChange);
+            return () => mmHover.removeEventListener?.("change", onChange);
+        }
     }, []);
 
     // remember card mode
     useEffect(() => {
-        const saved = localStorage.getItem("cardMode") as CardMode | null;
-        if (saved === "compact" || saved === "full") setCardMode(saved);
+        try {
+            const saved = localStorage.getItem("cardMode") as CardMode | null;
+            if (saved === "compact" || saved === "full") setCardMode(saved);
+        } catch {}
     }, []);
     useEffect(() => {
-        localStorage.setItem("cardMode", cardMode);
+        try {
+            localStorage.setItem("cardMode", cardMode);
+        } catch {}
     }, [cardMode]);
 
     // data fetch
@@ -482,8 +539,6 @@ export default function ReviewHub() {
             >
                 <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 md:px-6">
                     <span className="font-semibold text-[16px] md:text-[18px] tracking-[0.005em] text-[var(--text-primary)]">
-                        {" "}
-                        {/* ★ */}
                         ikkist&apos;s items
                     </span>
 
@@ -503,7 +558,7 @@ export default function ReviewHub() {
                         >
                             {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                             <input
-                                className="min-w-0 flex-1 bg-transparent text-[15px] md:text-[16px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none" // ★
+                                className="min-w-0 flex-1 bg-transparent text-[15px] md:text-[16px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
                                 placeholder="วางลิงก์ TikTok หรือชื่อของที่ต้องการ (เช่น โคมไฟ minimal)"
                                 value={stripToken(query)}
                                 onChange={(e) =>
@@ -597,16 +652,6 @@ export default function ReviewHub() {
                                         )}
                                     </AnimatePresence>
                                 </span>
-
-                                <motion.span
-                                    key={isFull ? "to-compact" : "to-full"}
-                                    initial={{ opacity: 0, x: 6 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -6 }}
-                                    transition={{ duration: 0.16 }}
-                                    className="hidden sm:inline"
-                                >
-                                </motion.span>
                             </Button>
                         </div>
 
@@ -623,65 +668,69 @@ export default function ReviewHub() {
                                 <ChevronDown size={18} />
                             </Button>
                             <AnimatePresence>
-                            {filterOpen && (
-                                <motion.div
-                                    key="filter"
-                                    initial="hidden"
-                                    animate="show"
-                                    exit="exit"
-                                    variants={dropVar}
-                                    className="absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-zinc-900/80 p-3 shadow-xl backdrop-blur"
-                                >
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <Search
-                                            size={14}
-                                            className="opacity-60"
-                                        />
-                                        <span className="text-[13px] md:text-[14px] text-zinc-400">
-                                            เลือกแท็กได้หลายอัน
-                                        </span>
-                                    </div>
-                                    <div className="flex max-h-56 flex-wrap gap-2 overflow-auto rounded-xl border border-white/10 bg-zinc-900/40 p-2">
-                                        {allTags.map((t) => {
-                                            const active =
-                                                activeTags.includes(t);
-                                            return (
-                                                <button
-                                                    key={t}
-                                                    onClick={() => toggleTag(t)}
-                                                    className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] md:text-[14px] transition ${
-                                                        active
-                                                            ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/40"
-                                                            : "border-white/10 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-900"
-                                                    }`}
-                                                    aria-pressed={active}
-                                                >
-                                                    {active ? (
-                                                        <Check size={14} />
-                                                    ) : (
-                                                        <Tag size={12} />
-                                                    )}
-                                                    {t}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="mt-3 flex items-center justify-between gap-2">
-                                        <button
-                                            onClick={clearTags}
-                                            className="text-[13px] md:text-[14px] text-zinc-400 hover:text-zinc-200"
-                                        >
-                                            ล้างทั้งหมด
-                                        </button>
-                                        <Button
-                                            className="h-11 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10"
-                                            onClick={() => setFilterOpen(false)}
-                                        >
-                                            เสร็จสิ้น
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            )}
+                                {filterOpen && (
+                                    <motion.div
+                                        key="filter"
+                                        initial="hidden"
+                                        animate="show"
+                                        exit="exit"
+                                        variants={dropVar}
+                                        className="absolute right-0 z-50 mt-2 w-72 rounded-2xl border border-white/10 bg-zinc-900/80 p-3 shadow-xl backdrop-blur"
+                                    >
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Search
+                                                size={14}
+                                                className="opacity-60"
+                                            />
+                                            <span className="text-[13px] md:text-[14px] text-zinc-400">
+                                                เลือกแท็กได้หลายอัน
+                                            </span>
+                                        </div>
+                                        <div className="flex max-h-56 flex-wrap gap-2 overflow-auto rounded-xl border border-white/10 bg-zinc-900/40 p-2">
+                                            {allTags.map((t) => {
+                                                const active =
+                                                    activeTags.includes(t);
+                                                return (
+                                                    <button
+                                                        key={t}
+                                                        onClick={() =>
+                                                            toggleTag(t)
+                                                        }
+                                                        className={`group inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] md:text-[14px] transition ${
+                                                            active
+                                                                ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/40"
+                                                                : "border-white/10 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-900"
+                                                        }`}
+                                                        aria-pressed={active}
+                                                    >
+                                                        {active ? (
+                                                            <Check size={14} />
+                                                        ) : (
+                                                            <Tag size={12} />
+                                                        )}
+                                                        {t}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <div className="mt-3 flex items-center justify-between gap-2">
+                                            <button
+                                                onClick={clearTags}
+                                                className="text-[13px] md:text-[14px] text-zinc-400 hover:text-zinc-200"
+                                            >
+                                                ล้างทั้งหมด
+                                            </button>
+                                            <Button
+                                                className="h-11 rounded-xl bg-zinc-100/5 text-zinc-200 hover:bg-zinc-100/10"
+                                                onClick={() =>
+                                                    setFilterOpen(false)
+                                                }
+                                            >
+                                                เสร็จสิ้น
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
                             </AnimatePresence>
                         </div>
                     </div>
@@ -723,10 +772,9 @@ export default function ReviewHub() {
                             </div>
                         </div>
 
-                        {/* quick mode toggle (mobile) */}
                         <div className="shrink-0">
                             <Button
-                                onClick={toggleMode} // ใช้ฟังก์ชันที่มีอยู่แล้ว
+                                onClick={toggleMode}
                                 aria-pressed={isFull}
                                 title={
                                     isFull
@@ -803,7 +851,6 @@ export default function ReviewHub() {
                             const gif = !!gifOn[item._id];
                             const m = merchantInfo(item.affiliateUrl);
 
-                            // shared bits
                             const d = new Date(item.publishedAt);
                             const dateText = `${d
                                 .getDate()
@@ -866,13 +913,26 @@ export default function ReviewHub() {
                                                         decoding="async"
                                                     />
                                                 )}
+                                                {item.productGif &&
+                                                    !canHover && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleGif(
+                                                                    item._id
+                                                                );
+                                                            }}
+                                                            className="absolute top-2 left-2 z-20 rounded-md bg-black/40 px-2 py-[2px] text-[11px] text-white/70 backdrop-blur md:hidden"
+                                                        >
+                                                            {gif
+                                                                ? "หยุด"
+                                                                : "แตะ"}
+                                                        </button>
+                                                    )}
 
                                                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
-                                                <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85">
-                                                    <Badge className="!text-[12px] md:!text-[13px] bg-black/50">
-                                                        {item.platform}
-                                                    </Badge>
-                                                </div>
+                                                <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85"></div>
                                                 <ScoreBadge
                                                     value={item.rating || 0}
                                                 />
@@ -880,8 +940,6 @@ export default function ReviewHub() {
                                                 {/* bottom minimal */}
                                                 <div className="absolute bottom-0 left-0 right-0 z-10 p-3 flex flex-col gap-1.5">
                                                     <h3 className="text-[14px] md:text-[16px] font-semibold text-[var(--text-primary)] leading-[1.35] line-clamp-2">
-                                                        {" "}
-                                                        {/* ★ */}
                                                         {item.title}
                                                     </h3>
 
@@ -911,7 +969,7 @@ export default function ReviewHub() {
                                                                     (m as any)
                                                                         .className +
                                                                     " inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-[12px] md:text-[13px]"
-                                                                } // ★
+                                                                }
                                                                 title={m.label}
                                                             >
                                                                 {m.label}{" "}
@@ -993,6 +1051,17 @@ export default function ReviewHub() {
                                                 />
                                             )}
 
+                                            {/* ✅ Hint มือถือ (full → bottom-right) */}
+                                            {item.productGif && !canHover && (
+                                                <MobileGifHint
+                                                    playing={gif}
+                                                    onToggle={() =>
+                                                        toggleGif(item._id)
+                                                    }
+                                                    placement="br"
+                                                />
+                                            )}
+
                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/85" />
                                             <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[13px] md:text-[14px] text-white/80">
                                                 <Badge className="!text-[13px] md:!text-[14px] bg-black/50">
@@ -1009,8 +1078,6 @@ export default function ReviewHub() {
 
                                             <div className="absolute bottom-0 left-0 right-0 z-10 p-4 flex flex-col gap-2">
                                                 <h3 className="text-[18px] md:text-[22px] font-semibold text-[var(--text-primary)] leading-[1.45] line-clamp-2">
-                                                    {" "}
-                                                    {/* ★ */}
                                                     {item.title}
                                                 </h3>
                                                 <div className="flex items-center gap-2">
@@ -1034,8 +1101,6 @@ export default function ReviewHub() {
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div>
                                                         <div className="text-[14px] md:text-[15px] mb-1 flex items-center gap-1 text-[var(--accent-teal)]">
-                                                            {" "}
-                                                            {/* ★ */}
                                                             <ThumbsUp
                                                                 size={14}
                                                                 className="opacity-90"
@@ -1088,7 +1153,7 @@ export default function ReviewHub() {
                                                             (m as any)
                                                                 .className +
                                                             " h-12 px-4 rounded-xl text-[15px] md:text-[17px] font-semibold flex-1"
-                                                        } // ★
+                                                        }
                                                     >
                                                         {m.label}{" "}
                                                         <LinkIcon size={18} />
@@ -1097,7 +1162,7 @@ export default function ReviewHub() {
                                                         as="a"
                                                         href={item.reviewUrl}
                                                         target="_blank"
-                                                        className="h-11 px-4 bg-white/10 text-white hover:bg-white/20 text-[15px] md:text-[17px] flex-[0.5]" // ★
+                                                        className="h-11 px-4 bg-white/10 text-white hover:bg-white/20 text-[15px] md:text-[17px] flex-[0.5]"
                                                     >
                                                         คลิป{" "}
                                                         <ExternalLink
@@ -1123,8 +1188,6 @@ export default function ReviewHub() {
                     {/* Brand + disclosure */}
                     <section className="space-y-3">
                         <h3 className="text-[20px] md:text-[22px] leading-tight text-[var(--text-primary)] font-semibold tracking-[0.005em]">
-                            {" "}
-                            {/* ★ */}
                             Description
                         </h3>
 
@@ -1142,16 +1205,13 @@ export default function ReviewHub() {
                         </p>
 
                         <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3.5 py-2 text-[14px] md:text-[15px] text-amber-300 leading-relaxed">
-                            💡 <span className="font-semibold">คำแนะนำ:</span>
+                            💡 <span className="font-semibold">คำแนะนำ:</span>{" "}
                             ควรถ่ายวิดีโอระหว่างแกะของ
                             เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมง่ายขึ้น
                         </div>
 
-                        {/* Disclaimer */}
                         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 backdrop-blur px-3.5 py-3 flex justify-between">
                             <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)]/70 px-2.5 py-1 text-[12.5px] md:text-[13.5px] text-[var(--text-secondary)]">
-                                {" "}
-                                {/* ★ */}
                                 <span className="h-[6px] w-[6px] rounded-full bg-emerald-400/90" />
                                 สั่งเอง
                             </span>
@@ -1223,8 +1283,6 @@ export default function ReviewHub() {
                             ติดต่อ
                         </h4>
                         <ul className="space-y-2 text-[14px] md:text-[15.5px]">
-                            {" "}
-                            {/* ★ */}
                             <li className="text-[var(--text-tertiary)]">
                                 อีเมล:{" "}
                                 <a
