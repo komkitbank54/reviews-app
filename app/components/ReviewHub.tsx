@@ -23,7 +23,9 @@ import {
     Rows,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion, LayoutGroup } from "framer-motion";
+import type { Variants, Transition } from "framer-motion";
 const layoutSpring = { type: "spring", stiffness: 480, damping: 34, mass: 0.6 };
+const easeOut: Transition["ease"] = [0.16, 1, 0.3, 1];
 
 /* ----------------------------- Types & Const ----------------------------- */
 type Platform = "tiktok" | "youtube" | "reels";
@@ -256,41 +258,49 @@ const merchantInfo = (url: string) => {
 };
 
 /* --------------------------- Motion Variants ---------------------------- */
-const pageVar = {
-    hidden: { opacity: 0, y: 8 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" } },
+const pageVar: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.28, ease: easeOut },
+  },
 };
 
-const sectionVar = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.22 } },
+const sectionVar: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.22, ease: easeOut },
+  },
 };
 
-const gridVar = (delay = 0) => ({
-    hidden: {},
-    show: {
-        transition: {
-            delay,
-            staggerChildren: 0.06,
-            when: "beforeChildren",
-        },
+const gridVar = (delay = 0): Variants => ({
+  hidden: {},
+  show: {
+    transition: {
+      delay,
+      staggerChildren: 0.06,
+      when: "beforeChildren",
     },
+  },
 });
 
-const cardVar = (shift = 10) => ({
-    hidden: { opacity: 0, y: shift, scale: 0.98 },
-    show: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: { duration: 0.22, ease: "easeOut" },
-    },
+const cardVar = (shift = 10): Variants => ({
+  hidden: { opacity: 0, y: shift, scale: 0.98 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.22, ease: easeOut },
+  },
 });
 
-const dropVar = {
-    hidden: { opacity: 0, y: -6, scale: 0.98 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.16 } },
-    exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.12 } },
+const dropVar: Variants = {
+  hidden: { opacity: 0, y: -6, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.16, ease: easeOut } },
+  exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.12, ease: easeOut } },
 };
 
 /* --------------------------------- Page ---------------------------------- */
