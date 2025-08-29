@@ -90,27 +90,24 @@ function useDebouncedValue<T>(value: T, delay = 250) {
 }
 
 /* ------------------------------- UI Atoms -------------------------------- */
-type PolymorphicProps<E extends keyof JSX.IntrinsicElements> =
-    JSX.IntrinsicElements[E] & { as?: E; className?: string };
+type PolymorphicProps<E extends React.ElementType> =
+  React.ComponentPropsWithoutRef<E> & { as?: E; className?: string };
 
-// ★ ขยายฟอนต์ปุ่มทุกที่แบบรวมศูนย์: md ขึ้นเป็น 17px
-function Button<E extends keyof JSX.IntrinsicElements = "button">({
-    as,
-    className = "",
-    ...props
-}: PolymorphicProps<E>) {
-    const Comp = (as || "button") as any;
-    return (
-        <Comp
-            className={
-                "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[15px] md:text-[17px] font-medium outline-none " + // ★
-                "transition-all duration-200 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-emerald-500/40 " +
-                "bg-zinc-900/60 backdrop-blur-lg border border-white/10 " +
-                className
-            }
-            {...props}
-        />
-    );
+function Button<E extends React.ElementType = "button">(
+  { as, className = "", ...props }: PolymorphicProps<E>
+) {
+  const Comp = (as || "button") as React.ElementType;
+  return (
+    <Comp
+      className={
+        "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-medium outline-none " +
+        "transition-all duration-200 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-emerald-500/40 " +
+        "bg-zinc-900/60 backdrop-blur-lg border border-white/10 " +
+        className
+      }
+      {...props as any}
+    />
+  );
 }
 
 const Card = memo(function Card({
