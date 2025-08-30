@@ -151,10 +151,19 @@ const Badge = ({
     </span>
 );
 
-const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
+const ScoreBadge = memo(function ScoreBadge({
+    value = 0,
+    absolute = true,
+}: {
+    value?: number;
+    absolute?: boolean;
+}) {
     const v = clamp5(value);
+    const pos = absolute ? "absolute top-2 right-2 z-10" : "";
     return (
-        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200">
+        <span
+            className={`${pos} inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200`}
+        >
             <span className="font-semibold">{v.toFixed(1)}</span>
             <span className="opacity-60">/ 5</span>
             <Star
@@ -168,21 +177,17 @@ const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
 });
 
 /* ----------------------- Mobile GIF Hint (no icon) ----------------------- */
-/** ใช้เฉพาะมือถือ (md:hidden) — compact: มุมขวาบนเลื่อนลงนิดนึง, full: มุมขวาล่าง */
+/** โชว์เฉพาะมือถือ — full: มุมขวาล่าง / compact: มุมขวาบน */
 function MobileGifHint({
     playing,
     onToggle,
-    placement = "br", // "tr" | "br"
+    placement = "br",
 }: {
     playing: boolean;
     onToggle: () => void;
     placement?: "tr" | "br";
 }) {
-    const pos =
-        placement === "tr"
-            ? "top-10 right-2" // compact (เลี่ยงชน ScoreBadge)
-            : "bottom-2 right-2"; // full
-
+    const pos = placement === "tr" ? "top-2 right-2" : "bottom-2 right-2";
     return (
         <button
             type="button"
@@ -191,16 +196,15 @@ function MobileGifHint({
                 onToggle();
             }}
             className={[
-                "absolute z-20",
+                "absolute z-20 md:hidden", // มือถือเท่านั้น
                 pos,
                 "rounded-full border border-white/10 bg-black/40 backdrop-blur",
-                "px-2 py-[5px] text-[10.5px] leading-none",
+                "px-2.5 py-[5px] text-[11px] leading-none",
                 "text-white/60 shadow-md active:scale-95 transition",
-                "md:hidden", // มือถือเท่านั้น
             ].join(" ")}
             aria-label={playing ? "หยุด GIF" : "แตะเพื่อดู GIF"}
         >
-            {playing ? "แตะเพื่อหยุด" : "แตะเพื่อดู GIF"}
+            {playing ? "หยุด" : "แตะ"}
         </button>
     );
 }
@@ -358,6 +362,7 @@ export default function ReviewHub() {
     const [canHover, setCanHover] = useState(false);
     const [tiktokUrl, setTikTokUrl] = useState<string | null>(null);
     const [cardMode, setCardMode] = useState<CardMode>("full");
+    const [year, setYear] = useState<string>(""); // กัน hydration mismatch
 
     const [items, setItems] = useState<ReviewItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -372,7 +377,6 @@ export default function ReviewHub() {
 
     /* effects */
     useEffect(() => {
-        // ทำเฉพาะ client — หลีกเลี่ยง hydration mismatch
         if (typeof document !== "undefined") {
             document.documentElement.classList.add("dark");
         }
@@ -399,6 +403,11 @@ export default function ReviewHub() {
             localStorage.setItem("cardMode", cardMode);
         } catch {}
     }, [cardMode]);
+
+    // year (client-only)
+    useEffect(() => {
+        setYear(String(new Date().getFullYear()));
+    }, []);
 
     // data fetch
     useEffect(() => {
@@ -913,8 +922,13 @@ export default function ReviewHub() {
                                                         decoding="async"
                                                     />
                                                 )}
+
+                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
+
                                                 {item.productGif &&
-                                                    !canHover && (
+                                                    !canHover &&
+                                                    (gif ? (
+                                                        // เล่น GIF อยู่: โชว์คะแนนแทนปุ่ม "หยุด" แต่ยังแตะเพื่อหยุดได้
                                                         <button
                                                             type="button"
                                                             onClick={(e) => {
@@ -923,19 +937,29 @@ export default function ReviewHub() {
                                                                     item._id
                                                                 );
                                                             }}
-                                                            className="absolute top-2 left-2 z-20 rounded-md bg-black/40 px-2 py-[2px] text-[11px] text-white/70 backdrop-blur md:hidden"
+                                                            className="absolute top-2 right-2 z-20 md:hidden"
+                                                            aria-label="หยุด GIF"
                                                         >
-                                                            {gif
-                                                                ? "หยุด"
-                                                                : "แตะ"}
+                                                            <ScoreBadge
+                                                                value={
+                                                                    item.rating ||
+                                                                    0
+                                                                }
+                                                                absolute={false}
+                                                            />
                                                         </button>
-                                                    )}
-
-                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
-                                                <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85"></div>
-                                                <ScoreBadge
-                                                    value={item.rating || 0}
-                                                />
+                                                    ) : (
+                                                        // ยังไม่เล่น: โชว์ "แตะ"
+                                                        <MobileGifHint
+                                                            playing={false}
+                                                            onToggle={() =>
+                                                                toggleGif(
+                                                                    item._id
+                                                                )
+                                                            }
+                                                            placement="tr"
+                                                        />
+                                                    ))}
 
                                                 {/* bottom minimal */}
                                                 <div className="absolute bottom-0 left-0 right-0 z-10 p-3 flex flex-col gap-1.5">
@@ -956,13 +980,13 @@ export default function ReviewHub() {
                                                             ))}
                                                     </div>
 
-                                                    {/* quick actions (compact) */}
-                                                    <div className="mt-2 flex items-center gap-2 m-auto">
+                                                    {/* quick actions (compact) — ให้พื้นที่ไม่บังปุ่ม */}
+                                                    <div className="mt-2 flex items-center gap-2">
                                                         {item.affiliateUrl && (
                                                             <a
-                                                                href={
+                                                                href={`/go?u=${encodeURIComponent(
                                                                     item.affiliateUrl
-                                                                }
+                                                                )}`}
                                                                 target="_blank"
                                                                 rel="nofollow noopener noreferrer"
                                                                 className={
@@ -1146,7 +1170,9 @@ export default function ReviewHub() {
                                                 <div className="mt-4 flex gap-2">
                                                     <Button
                                                         as="a"
-                                                        href={item.affiliateUrl}
+                                                        href={`/go?u=${encodeURIComponent(
+                                                            item.affiliateUrl
+                                                        )}`}
                                                         target="_blank"
                                                         rel="nofollow noopener noreferrer"
                                                         className={
@@ -1279,7 +1305,7 @@ export default function ReviewHub() {
 
                     {/* Contact */}
                     <section>
-                        <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
+                        <h4 className="text-[14px] md:text=[15px] text-[var(--text-secondary)] font-semibold mb-3">
                             ติดต่อ
                         </h4>
                         <ul className="space-y-2 text-[14px] md:text-[15.5px]">
@@ -1300,8 +1326,7 @@ export default function ReviewHub() {
                 <div className="border-t border-[var(--border-subtle)]/80">
                     <div className="mx-auto max-w-6xl px-4 md:px-6 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <span className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
-                            © {new Date().getFullYear()} ikkist's items — All
-                            rights reserved.
+                            © {year} ikkist&apos;s items — All rights reserved.
                         </span>
                         <div className="text-[13px] md:text-[14px] text-[var(--text-tertiary)]">
                             Built by{" "}
