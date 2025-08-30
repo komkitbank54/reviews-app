@@ -55,8 +55,7 @@ const TIKTOK_URL_RE =
   /\bhttps?:\/\/(?:www\.)?(?:m\.)?(?:vt\.)?tiktok\.com\/[^\s]+/i;
 
 /* --------------------------------- Utils -------------------------------- */
-const clamp5 = (n: number) =>
-  Math.max(0, Math.min(5, Number.isFinite(n) ? n : 0));
+const clamp5 = (n: number) => Math.max(0, Math.min(5, Number.isFinite(n) ? n : 0));
 
 const stripToken = (text: string) => text.replaceAll(TIKTOK_TOKEN, "").trim();
 
@@ -168,12 +167,7 @@ const ScoreBadge = memo(function ScoreBadge({
     >
       <span className="font-semibold">{v.toFixed(1)}</span>
       <span className="opacity-60">/ 5</span>
-      <Star
-        size={14}
-        className="-mt-px text-yellow-400"
-        fill="currentColor"
-        strokeWidth={0}
-      />
+      <Star size={14} className="-mt-px text-yellow-400" fill="currentColor" strokeWidth={0} />
     </span>
   );
 });
@@ -232,10 +226,7 @@ function TikTokBadge({ onClear }: { onClear: () => void }) {
         className="absolute -inset-[2px] -z-10 rounded-full blur-[8px] opacity-70
                    bg-[conic-gradient(at_30%_30%,#25F4EE_0deg,#000_120deg,#FE2C55_240deg,#25F4EE_360deg)]"
       />
-      <span
-        aria-hidden
-        className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-[#111] via-[#1b1b1b] to-[#111]"
-      />
+      <span aria-hidden className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-[#111] via-[#1b1b1b] to-[#111]" />
       <span
         aria-hidden
         className="absolute inset-0 -z-10 rounded-full p-px
@@ -367,7 +358,7 @@ function GuideModal({
   open: boolean;
   onClose: () => void;
 }) {
-  // lock body scroll while modal open
+  // ล็อกสกอร์ลพื้นหลังตอนเปิดโมดัล
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -392,10 +383,7 @@ function GuideModal({
           exit={{ opacity: 0 }}
         >
           {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
           {/* Sheet / Modal */}
           <motion.div
@@ -422,7 +410,7 @@ function GuideModal({
               transition: { duration: 0.16 },
             }}
           >
-            {/* Header */}
+            {/* Header (ติดบน) */}
             <div className="shrink-0 p-4 md:p-5 border-b border-white/10 flex items-center justify-between">
               <h3 className="text-[16px] md:text-[18px] font-semibold text-zinc-100">
                 หากสินค้าไม่ขึ้น (ภายในแอป TikTok)
@@ -506,14 +494,13 @@ export default function ReviewHub() {
   const [loading, setLoading] = useState(true);
   const debouncedQuery = useDebouncedValue(query, 300);
 
+  const [gifOn, setGifOn] = useState<Record<string, boolean>>({});
+  const gifTimersRef = useRef<Record<string, number>>({});
+
   const [guideOpen, setGuideOpen] = useState(false);
 
   const isFull = cardMode === "full";
   const toggleMode = () => setCardMode(isFull ? "compact" : "full");
-
-  // GIF states by id
-  const [gifOn, setGifOn] = useState<Record<string, boolean>>({});
-  const gifTimersRef = useRef<Record<string, number>>({});
 
   /* effects */
   useEffect(() => {
@@ -529,7 +516,6 @@ export default function ReviewHub() {
     }
   }, []);
 
-  // remember card mode
   useEffect(() => {
     try {
       const saved = localStorage.getItem("cardMode") as CardMode | null;
@@ -577,9 +563,7 @@ export default function ReviewHub() {
 
   /* callbacks */
   const toggleTag = useCallback((t: string) => {
-    setActiveTags((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
-    );
+    setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
   }, []);
   const clearTags = useCallback(() => setActiveTags([]), []);
 
@@ -595,8 +579,7 @@ export default function ReviewHub() {
         const val = el.value ?? "";
         const s = el.selectionStart ?? 0;
         const epos = el.selectionEnd ?? 0;
-        const emptyOrAllSelected =
-          val.length === 0 || (s === 0 && epos === val.length);
+        const emptyOrAllSelected = val.length === 0 || (s === 0 && epos === val.length);
         if (tiktokUrl && emptyOrAllSelected) {
           e.preventDefault();
           clearTikTok();
@@ -625,8 +608,7 @@ export default function ReviewHub() {
       const text = e.clipboardData.getData("text");
       if (!TIKTOK_URL_RE.test(text)) return;
       e.preventDefault();
-      const base =
-        (tiktokUrl ? `${TIKTOK_TOKEN} ${stripToken(query)}` : query) || "";
+      const base = (tiktokUrl ? `${TIKTOK_TOKEN} ${stripToken(query)}` : query) || "";
       const el = e.target as HTMLInputElement;
       const before = base.slice(0, el.selectionStart ?? base.length);
       const after = base.slice(el.selectionEnd ?? base.length);
@@ -682,10 +664,7 @@ export default function ReviewHub() {
 
           {/* Desktop Search */}
           <div className="relative ml-4 hidden min-w-0 flex-1 items-center md:flex">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
-              size={18}
-            />
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60" size={18} />
             <div
               className="
                 w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
@@ -706,7 +685,7 @@ export default function ReviewHub() {
             </div>
           </div>
 
-          {/* Display mode toggle + Filter */}
+          {/* Display mode toggle */}
           <div className="ml-auto flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
               <Button
@@ -715,9 +694,7 @@ export default function ReviewHub() {
                 title={isFull ? "สลับเป็นโหมดกะทัดรัด" : "สลับเป็นโหมดเต็ม"}
                 className={[
                   "h-11 px-4 rounded-xl inline-flex items-center gap-2 transition-colors",
-                  isFull
-                    ? "bg-emerald-600/90 text-white shadow"
-                    : "bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800/70",
+                  isFull ? "bg-emerald-600/90 text-white shadow" : "bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800/70",
                 ].join(" ")}
               >
                 <span className="relative inline-flex w-5 h-5 overflow-hidden">
@@ -728,12 +705,7 @@ export default function ReviewHub() {
                         initial={{ y: 16, opacity: 0, rotate: -10 }}
                         animate={{ y: 0, opacity: 1, rotate: 0 }}
                         exit={{ y: -16, opacity: 0, rotate: 10 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                          mass: 0.6,
-                        }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.6 }}
                         className="absolute inset-0 grid place-items-center"
                       >
                         <Rows size={18} />
@@ -744,12 +716,7 @@ export default function ReviewHub() {
                         initial={{ y: 16, opacity: 0, rotate: -10 }}
                         animate={{ y: 0, opacity: 1, rotate: 0 }}
                         exit={{ y: -16, opacity: 0, rotate: 10 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                          mass: 0.6,
-                        }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.6 }}
                         className="absolute inset-0 grid place-items-center"
                       >
                         <LayoutGrid size={18} />
@@ -782,9 +749,7 @@ export default function ReviewHub() {
                   >
                     <div className="mb-2 flex items-center gap-2">
                       <Search size={14} className="opacity-60" />
-                      <span className="text-[13px] md:text-[14px] text-zinc-400">
-                        เลือกแท็กได้หลายอัน
-                      </span>
+                      <span className="text-[13px] md:text-[14px] text-zinc-400">เลือกแท็กได้หลายอัน</span>
                     </div>
                     <div className="flex max-h-56 flex-wrap gap-2 overflow-auto rounded-xl border border-white/10 bg-zinc-900/40 p-2">
                       {allTags.map((t) => {
@@ -831,10 +796,7 @@ export default function ReviewHub() {
         <div className="block border-t border-white/10 px-4 pb-3 pt-2 md:hidden">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
-                size={18}
-              />
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-60" size={18} />
               <div
                 className="
                   w-full rounded-xl border border-white/10 bg-zinc-950/60 backdrop-blur
@@ -846,11 +808,7 @@ export default function ReviewHub() {
                 {tiktokUrl && <TikTokBadge onClear={clearTikTok} />}
                 <input
                   className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.6] text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
-                  placeholder={
-                    tiktokUrl
-                      ? "ใส่ชื่อของเพื่อค้นหา"
-                      : "แปะลิงก์ tiktok หรือ ชื่อของเพื่อค้นหา"
-                  }
+                  placeholder={tiktokUrl ? "ใส่ชื่อของเพื่อค้นหา" : "แปะลิงก์ tiktok หรือ ชื่อของเพื่อค้นหา"}
                   value={stripToken(query)}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onPaste={handleSearchPaste}
@@ -859,16 +817,14 @@ export default function ReviewHub() {
               </div>
             </div>
 
-            <div className="shrink-0 flex items-center gap-2">
+            <div className="shrink-0">
               <Button
                 onClick={toggleMode}
                 aria-pressed={isFull}
                 title={isFull ? "สลับเป็นโหมดกะทัดรัด" : "สลับเป็นโหมดเต็ม"}
                 className={[
                   "h-10 px-3 rounded-xl inline-flex items-center gap-2 transition-colors",
-                  isFull
-                    ? "bg-emerald-600/90 text-white shadow"
-                    : "bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800/70",
+                  isFull ? "bg-emerald-600/90 text-white shadow" : "bg-zinc-900/60 text-zinc-200 hover:bg-zinc-800/70",
                 ].join(" ")}
               >
                 <span className="relative inline-flex w-5 h-5 overflow-hidden">
@@ -905,53 +861,31 @@ export default function ReviewHub() {
       </motion.header>
 
       {/* Grid */}
-      <motion.main
-        className="mx-auto max-w-6xl px-4 py-6 md:px-6"
-        variants={sectionVar}
-      >
+      <motion.main className="mx-auto max-w-6xl px-4 py-6 md:px-6" variants={sectionVar}>
         {loading ? (
-          <motion.div
-            className={gridClass}
-            variants={gridVar(0.05)}
-            initial="hidden"
-            animate="show"
-          >
-            {Array.from({ length: cardMode === "compact" ? 12 : 6 }).map(
-              (_, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-white/10 bg-zinc-900/40 h-48 md:h-60 animate-pulse"
-                />
-              )
-            )}
+          <motion.div className={gridClass} variants={gridVar(0.05)} initial="hidden" animate="show">
+            {Array.from({ length: cardMode === "compact" ? 12 : 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-white/10 bg-zinc-900/40 h-48 md:h-60 animate-pulse" />
+            ))}
           </motion.div>
         ) : (
           <div className={gridClass}>
             {items.map((item) => {
               const gif = !!gifOn[item._id];
               const m = merchantInfo(item.affiliateUrl);
-
               const d = new Date(item.publishedAt);
-              const dateText = `${d
-                .getDate()
-                .toString()
-                .padStart(2, "0")}/${(d.getMonth() + 1)
+              const dateText = `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
                 .toString()
                 .padStart(2, "0")}/${d.getFullYear().toString().slice(-2)}`;
 
               if (cardMode === "compact") {
-                /* ------------------------ COMPACT CARD ------------------------ */
                 return (
                   <motion.div variants={cardVar(8)} key={item._id}>
                     <Card className="overflow-hidden relative group">
                       <div
                         className="relative aspect-[4/5] md:aspect-[1/1] w-full"
-                        onMouseEnter={() =>
-                          item.productGif && canHover && toggleGif(item._id, true)
-                        }
-                        onMouseLeave={() =>
-                          item.productGif && canHover && toggleGif(item._id, false)
-                        }
+                        onMouseEnter={() => item.productGif && canHover && toggleGif(item._id, true)}
+                        onMouseLeave={() => item.productGif && canHover && toggleGif(item._id, false)}
                         onClick={() => item.productGif && toggleGif(item._id)}
                         role="button"
                         aria-label="พรีวิว GIF"
@@ -977,8 +911,19 @@ export default function ReviewHub() {
                           />
                         )}
 
-                        {/* Mobile hint (compact → top-right, small) */}
-                        {item.productGif && !canHover && (
+                        {item.productGif && !canHover && (gif ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleGif(item._id);
+                            }}
+                            className="absolute top-2 right-2 z-20 md:hidden"
+                            aria-label="หยุด GIF"
+                          >
+                            <ScoreBadge value={item.rating || 0} />
+                          </button>
+                        ) : (
                           <button
                             type="button"
                             onClick={(e) => {
@@ -986,48 +931,34 @@ export default function ReviewHub() {
                               toggleGif(item._id);
                             }}
                             className="absolute top-2 right-2 z-20 rounded-md bg-black/40 px-2 py-[2px] text-[11px] text-white/70 backdrop-blur md:hidden"
-                            aria-label={gif ? "หยุด GIF" : "แตะเพื่อดู GIF"}
+                            aria-label="แตะเพื่อดู GIF"
                           >
-                            {gif ? "หยุด" : "แตะ"}
+                            แตะ
                           </button>
-                        )}
+                        ))}
 
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
-                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85" />
-                        <span className="absolute top-2 right-2 z-10">
-                          <ScoreBadge value={item.rating || 0} />
-                        </span>
+                        <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[12px] md:text-[13px] text-white/85"></div>
 
-                        {/* bottom minimal */}
                         <div className="absolute bottom-0 left-0 right-0 z-10 p-3 flex flex-col gap-1.5">
                           <h3 className="text-[14px] md:text-[16px] font-semibold text-[var(--text-primary)] leading-[1.35] line-clamp-2">
                             {item.title}
                           </h3>
-
                           <div className="flex items-center gap-2 text-[12px] md:text-[13px] text-[var(--text-tertiary)]">
-                            {(item.tags || [])
-                              .slice(0, 3)
-                              .map((t) => (
-                                <span
-                                  key={t}
-                                  className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
-                                >
-                                  #{t}
-                                </span>
-                              ))}
+                            {(item.tags || []).slice(0, 3).map((t) => (
+                              <span key={t} className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full">
+                                #{t}
+                              </span>
+                            ))}
                           </div>
 
-                          {/* quick actions (compact) */}
                           <div className="mt-2 flex items-center gap-2 m-auto">
                             {item.affiliateUrl && (
                               <a
                                 href={item.affiliateUrl}
                                 target="_blank"
                                 rel="nofollow noopener noreferrer"
-                                className={
-                                  (m as any).className +
-                                  " inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-[12px] md:text-[13px]"
-                                }
+                                className={(m as any).className + " inline-flex h-8 items-center justify-center rounded-lg px-2.5 text-[12px] md:text-[13px]"}
                                 title={m.label}
                               >
                                 {m.label} <LinkIcon size={14} className="ml-1" />
@@ -1054,12 +985,8 @@ export default function ReviewHub() {
                   <Card className="overflow-hidden relative group">
                     <div
                       className="relative aspect-[4/5] md:aspect-[16/10] w-full"
-                      onMouseEnter={() =>
-                        item.productGif && canHover && toggleGif(item._id, true)
-                      }
-                      onMouseLeave={() =>
-                        item.productGif && canHover && toggleGif(item._id, false)
-                      }
+                      onMouseEnter={() => item.productGif && canHover && toggleGif(item._id, true)}
+                      onMouseLeave={() => item.productGif && canHover && toggleGif(item._id, false)}
                       onClick={() => item.productGif && toggleGif(item._id)}
                       role="button"
                       aria-label="พรีวิว GIF (เดสก์ท็อป: hover / มือถือ: แตะ)"
@@ -1067,9 +994,7 @@ export default function ReviewHub() {
                       <img
                         src={item.productImage}
                         alt={item.title}
-                        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                          gif ? "opacity-0" : "opacity-100"
-                        }`}
+                        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${gif ? "opacity-0" : "opacity-100"}`}
                         loading="lazy"
                         decoding="async"
                       />
@@ -1077,53 +1002,34 @@ export default function ReviewHub() {
                         <img
                           src={item.productGif}
                           alt={`${item.title} gif`}
-                          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                            gif ? "opacity-100" : "opacity-0"
-                          }`}
+                          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${gif ? "opacity-100" : "opacity-0"}`}
                           loading="lazy"
                           decoding="async"
                         />
                       )}
 
-                      {/* Hint มือถือ (full → bottom-right) */}
                       {item.productGif && !canHover && (
-                        <MobileGifHint
-                          playing={gif}
-                          onToggle={() => toggleGif(item._id)}
-                          placement="br"
-                        />
+                        <MobileGifHint playing={gif} onToggle={() => toggleGif(item._id)} placement="br" />
                       )}
 
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/85" />
                       <div className="absolute top-2 left-2 z-10 flex items-center gap-2 text-[13px] md:text-[14px] text-white/80">
-                        <Badge className="!text-[13px] md:!text-[14px] bg-black/50">
-                          {item.platform}
-                        </Badge>
+                        <Badge className="!text-[13px] md:!text-[14px] bg-black/50">{item.platform}</Badge>
                         <span>•</span>
-                        <time className="text-[13px] md:text-[14px] opacity-80">
-                          {dateText}
-                        </time>
+                        <time className="text-[13px] md:text-[14px] opacity-80">{dateText}</time>
                       </div>
-                      <ScoreBadge
-                        value={item.rating || 0}
-                        className="absolute top-2 right-2 z-10"
-                      />
+                      <ScoreBadge value={item.rating || 0} className="absolute top-2 right-2 z-10" />
 
                       <div className="absolute bottom-0 left-0 right-0 z-10 p-4 flex flex-col gap-2">
                         <h3 className="text-[18px] md:text-[22px] font-semibold text-[var(--text-primary)] leading-[1.45] line-clamp-2">
                           {item.title}
                         </h3>
                         <div className="flex items-center gap-2">
-                          {(item.tags || [])
-                            .slice(0, 3)
-                            .map((t) => (
-                              <span
-                                key={t}
-                                className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full"
-                              >
-                                #{t}
-                              </span>
-                            ))}
+                          {(item.tags || []).slice(0, 3).map((t) => (
+                            <span key={t} className="text-[13px] md:text-[14px] text-[var(--text-tertiary)] bg-white/10 px-2 py-[2px] rounded-full">
+                              #{t}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1137,10 +1043,7 @@ export default function ReviewHub() {
                             </div>
                             <ul className="space-y-1">
                               {(item.pros || []).slice(0, 2).map((p, i) => (
-                                <li
-                                  key={i}
-                                  className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]"
-                                >
+                                <li key={i} className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]">
                                   • {p}
                                 </li>
                               ))}
@@ -1152,10 +1055,7 @@ export default function ReviewHub() {
                             </div>
                             <ul className="space-y-1">
                               {(item.cons || []).slice(0, 2).map((c, i) => (
-                                <li
-                                  key={i}
-                                  className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]"
-                                >
+                                <li key={i} className="text-[14px] md:text-[15px] leading-[1.65] text-[var(--text-secondary)]">
                                   • {c}
                                 </li>
                               ))}
@@ -1169,10 +1069,7 @@ export default function ReviewHub() {
                             href={item.affiliateUrl}
                             target="_blank"
                             rel="nofollow noopener noreferrer"
-                            className={
-                              (m as any).className +
-                              " h-12 px-4 rounded-xl text-[15px] md:text-[17px] font-semibold flex-1"
-                            }
+                            className={(m as any).className + " h-12 px-4 rounded-xl text-[15px] md:text-[17px] font-semibold flex-1"}
                           >
                             {m.label} <LinkIcon size={18} />
                           </Button>
@@ -1195,10 +1092,7 @@ export default function ReviewHub() {
         )}
       </motion.main>
 
-      <motion.footer
-        className="mt-16 border-t border-[var(--border-subtle)]/80"
-        variants={sectionVar}
-      >
+      <motion.footer className="mt-16 border-t border-[var(--border-subtle)]/80" variants={sectionVar}>
         <div className="mx-auto max-w-6xl px-4 md:px-6 py-10 grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {/* Brand + disclosure */}
           <section className="space-y-3">
@@ -1207,17 +1101,14 @@ export default function ReviewHub() {
             </h3>
 
             <p className="text-[15px] md:text-[16.5px] leading-[1.9] text-[var(--text-tertiary)]">
-              เว็บรวมของผมที่สั่งเอง ใช้เอง รีวิวเอง ความเห็นทั้งหมดมาจากผมเอง
-              ของบางส่วนเป็น Affiliate ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาของจะไม่ได้แพงขึ้น
-              และ
+              เว็บรวมของผมที่สั่งเอง ใช้เอง รีวิวเอง ความเห็นทั้งหมดมาจากผมเอง ของบางส่วนเป็น Affiliate
+              ซึ่งช่วยซัพพอร์ตคอนเทนต์ของผมโดยราคาของจะไม่ได้แพงขึ้น และ
               <span className="font-semibold text-amber-400 ml-1">อย่าลืม!</span>{" "}
-              ตรวจสอบสเปก, ราคา, สต็อกให้รอบคอบก่อนซื้อ เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ
-              หากของไม่ตรงปกเพราะผมสั่งผมก็เจอไม่ตรงเยอะ ;w;
+              ตรวจสอบสเปก, ราคา, สต็อกให้รอบคอบก่อนซื้อ เว็บไซต์ไม่รับผิดชอบความเสียหายใด ๆ หากของไม่ตรงปกเพราะผมสั่งผมก็เจอไม่ตรงเยอะ ;w;
             </p>
 
             <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3.5 py-2 text-[14px] md:text-[15px] text-amber-300 leading-relaxed">
-              💡 <span className="font-semibold">คำแนะนำ:</span>{" "}
-              ควรถ่ายวิดีโอระหว่างแกะของ เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมง่ายขึ้น
+              💡 <span className="font-semibold">คำแนะนำ:</span> ควรถ่ายวิดีโอระหว่างแกะของ เผื่อชำรุด/ไม่ตรงปกจะได้ส่งเคลมง่ายขึ้น
             </div>
 
             <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)]/60 backdrop-blur px-3.5 py-3 flex justify-between">
@@ -1238,9 +1129,7 @@ export default function ReviewHub() {
 
           {/* Socials */}
           <section>
-            <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
-              ติดตาม
-            </h4>
+            <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">ติดตาม</h4>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               <a
                 href="https://www.instagram.com/ikk1st/"
@@ -1280,9 +1169,7 @@ export default function ReviewHub() {
 
           {/* Contact */}
           <section>
-            <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">
-              ติดต่อ
-            </h4>
+            <h4 className="text-[14px] md:text-[15px] text-[var(--text-secondary)] font-semibold mb-3">ติดต่อ</h4>
             <ul className="space-y-2 text-[14px] md:text-[15.5px]">
               <li className="text-[var(--text-tertiary)]">
                 อีเมล:{" "}
@@ -1309,11 +1196,11 @@ export default function ReviewHub() {
                 </a>
               </span>
 
-              {/* 🔗 Subtle help link under footer (low emphasis, still accessible) */}
+              {/* ✅ ลิงก์ช่วยเหลือ (สุภาพ ไม่เด่น แต่หาเจอ) */}
               <button
                 onClick={() => setGuideOpen(true)}
-                className="inline-flex items-center gap-1 text-[12.5px] md:text-[13px] text-zinc-400 hover:text-zinc-200 underline"
-                title="เจอปัญหาสินค้าไม่ขึ้น?"
+                className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-200 underline underline-offset-2"
+                title="หากกดแล้วสินค้าไม่ขึ้น"
               >
                 เจอปัญหาสินค้าไม่ขึ้น?
               </button>
