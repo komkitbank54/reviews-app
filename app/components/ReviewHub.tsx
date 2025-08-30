@@ -151,16 +151,21 @@ const Badge = ({
   </span>
 );
 
-const ScoreBadge = memo(function ScoreBadge({ value = 0 }: { value?: number }) {
+const ScoreBadge = memo(function ScoreBadge({
+  value = 0,
+  absolute = true,
+}: { value?: number; absolute?: boolean }) {
   const v = clamp5(value);
+  const pos = absolute ? "absolute top-2 right-2 z-10" : "";
   return (
-    <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200">
+    <span className={`${pos} inline-flex items-center gap-1 rounded-lg border border-white/10 bg-zinc-900/70 backdrop-blur px-2.5 py-1 text-[13px] md:text-[14px] text-zinc-200`}>
       <span className="font-semibold">{v.toFixed(1)}</span>
       <span className="opacity-60">/ 5</span>
       <Star size={14} className="-mt-px text-yellow-400" fill="currentColor" strokeWidth={0} />
     </span>
   );
 });
+
 
 /* ----------------------- Mobile GIF Hint (no icon) ----------------------- */
 /** โชว์เฉพาะมือถือ — full: มุมขวาล่าง / compact: มุมขวาบน */
@@ -736,9 +741,23 @@ export default function ReviewHub() {
                         )}
 
                         {/* ✅ Hint มือถือ (compact → top-right) */}
-                        {item.productGif && !canHover && (
-                          <MobileGifHint playing={gif} onToggle={() => toggleGif(item._id)} placement="tr" />
-                        )}
+{item.productGif && !canHover && (
+  gif ? (
+    // เล่น GIF อยู่: โชว์คะแนนแทนปุ่ม "หยุด" แต่ยังแตะเพื่อหยุดได้
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); toggleGif(item._id); }}
+      className="absolute top-2 right-2 z-20 md:hidden"
+      aria-label="หยุด GIF"
+    >
+      <ScoreBadge value={item.rating || 0} absolute={false} />
+    </button>
+  ) : (
+    // ยังไม่เล่น: โชว์ "แตะ"
+    <MobileGifHint playing={false} onToggle={() => toggleGif(item._id)} placement="tr" />
+  )
+)}
+
 
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/75" />
                         {/* ซ่อน badge ซ้ายบนเพื่อไม่บังปุ่ม */}
